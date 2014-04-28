@@ -8,3 +8,6 @@ cmake_install.cmake
 Makefile
 /lib
 /target
+/glm
+/build
+/bin

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <GL/glut.h>
 #include <glm/glm.hpp>
-#include "include/Renderer.hpp"
+#include "../include/Renderer.hpp"
 
 void draw();
 
