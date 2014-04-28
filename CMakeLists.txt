@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 project (VoxelRenderer)
 
-subdirs (src include lib)
+subdirs (src include)
 
 find_package (OpenGL REQUIRED)
 find_package (GLUT REQUIRED)

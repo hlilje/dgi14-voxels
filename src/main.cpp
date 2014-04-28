@@ -16,6 +16,8 @@ int main(int argc, char* argv[])
     glutInitWindowSize(500, 250);
     glutCreateWindow("Green Window");
 
+    glm::vec3 a; // Test
+
     // Draw
     glutDisplayFunc(draw);
     glutMainLoop();
