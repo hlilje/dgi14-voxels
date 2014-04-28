@@ -11,7 +11,11 @@ set (HEADERS include/Renderer.hpp)
 
 #set (COMPILE_FLAGS "-Wall -Wextra -pedantic -std=c++11")
 #add_definitions (${COMPILE_FLAGS})
-set (CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -std=c++11")
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    message(STATUS "GCC detected, adding compile flags")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -Wextra")
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_executable (main ${SOURCES} ${HEADERS})
 target_link_libraries(main ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
