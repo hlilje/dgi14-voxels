@@ -8,3 +8,5 @@ find_package (GLUT REQUIRED)
 
 add_executable (main src/main.cpp)
 target_link_libraries(main ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
+
+include_directories(${PROJECT_SOURCE_DIR}/glm)
