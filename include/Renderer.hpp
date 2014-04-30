@@ -1,8 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include <GL/glut.h>
 #include <glm/glm.hpp>
-#pragma once
 
+// This class currently does nothing
 class Renderer
 {
     public:
