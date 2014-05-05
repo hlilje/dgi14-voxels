@@ -89,11 +89,11 @@ static void display(){
 	superchunk test;
 	srand(time(NULL));
 
-	for(int x = 0; x < CX; x++)
+	for(int x = 0; x < SCX; x++)
 	{
-		for(int y = 0; y < CY; y++)
+		for(int y = 0; y < SCY; y++)
 		{
-			for(int z = 0; z < CZ; z++)
+			for(int z = 0; z < SCZ; z++)
 			{
 				if((rand() % 4) == 0)
 				{
