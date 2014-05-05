@@ -3,10 +3,10 @@
 using namespace std;
 
 // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-glm::mat4 Projection = glm::perspective(100.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 // Camera matrix
 glm::mat4 View       = glm::lookAt(
-    glm::vec3(2, 2, 2), // The position which the camera has in world space
+    glm::vec3(25, 25, 25), // The position which the camera has in world space
     glm::vec3(0,0,0), // and looks at the origin
     glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 );
@@ -53,7 +53,7 @@ int init_resources()
 #endif
     "varying vec4 texcoord;  "
     "void main(void) {        "
-    "    gl_FragColor = vec4(texcoord.w / 128.0, texcoord.w / 256.0, texcoord.w / 512.0, 1.0);"
+    "    gl_FragColor = vec4(texcoord.x / 16.0, texcoord.y / 16.0, texcoord.z / 16.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -100,10 +100,13 @@ static void display(){
 	glEnableVertexAttribArray(attribute_coord);
 
 	chunk test;
-	for(int x = 0; x < 1; x++){
-		for(int y = 0; y < 1; y++){
-			for(int z = 0; z < 1; z++){
-				test.set(x, y, z, 1);
+	srand(time(NULL));
+	for(int x = 0; x < 16; x++){
+		for(int y = 0; y < 16; y++){
+			for(int z = 0; z < 16; z++){
+				if((rand() % 4) == 0){ 
+					test.set(x, y, z, 1);
+				}
 			}
 		}
 	}

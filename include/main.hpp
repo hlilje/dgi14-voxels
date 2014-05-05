@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <cstring>
 #include <math.h>
+#include <time.h>
 
 #include <GL/glew.h>
 #include <GL/glut.h>
