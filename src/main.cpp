@@ -52,11 +52,11 @@ int init_resources()
         return 0;
     }
 
-    _program = glCreateProgram();
-    glAttachShader(_program, vs);
-    glAttachShader(_program, fs);
-    glLinkProgram(_program);
-    glGetProgramiv(_program, GL_LINK_STATUS, &link_ok);
+    program = glCreateProgram();
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &link_ok);
 
     if(!link_ok)
     {
@@ -65,9 +65,9 @@ int init_resources()
     }
 
     const char* attribute_name = "coord2d";
-    _attribute_coord2d = glGetAttribLocation(_program, attribute_name);
+    attribute_coord = glGetAttribLocation(program, attribute_name);
 
-    if(_attribute_coord2d == -1)
+    if(attribute_coord == -1)
     {
         fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
         return 0;
@@ -76,31 +76,27 @@ int init_resources()
     return 1;
 }
 
-void draw()
-{
-    // Background colour
-    glClearColor(0, 1, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // Draw order
-    glFlush();
-}
-
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitWindowSize(640, 480);
+    glutCreateWindow("GLEScraft");
 
-    // Simple buffer
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowPosition(50, 25);
-    glutInitWindowSize(500, 250);
-    glutCreateWindow("Green Window");
+    GLenum glew_status = glewInit();
+    if(GLEW_OK != glew_status)
+    {
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
+        return 1;
+    }
 
-    glm::vec3 a; // Test
+    if(!GLEW_VERSION_2_0)
+    {
+        fprintf(stderr, "No support for OpenGL 2.0 found\n");
+        return 1;
+    }
 
-    // Draw
-    glutDisplayFunc(draw);
-    glutMainLoop();
-    cout << "Hello" << endl;
+    // TODO Init resources
+    // TODO Free resources
     return 0;
 }
