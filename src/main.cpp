@@ -77,6 +77,60 @@ int init_resources()
     return 1;
 }
 
+void keyPressed (unsigned char key, int x, int y) {  
+	
+	glm::vec3 sideDir = glm::normalize( glm::cross(cameraPos, glm::vec3(0, 1, 0)) );
+	glm::vec3 cameraPosNorm = glm::normalize(cameraPos);
+
+	switch(key){
+		case 'w':
+			cameraLook -= cameraPosNorm;
+			cameraPos -= cameraPosNorm;
+			glutPostRedisplay();
+			break;
+		case 's':
+			cameraLook += cameraPosNorm;
+			cameraPos += cameraPosNorm;
+			glutPostRedisplay();
+			break;
+		case 'a':
+			cameraPos += sideDir;
+			cameraLook += sideDir;
+			glutPostRedisplay();
+			break;
+		case 'd':
+			cameraPos -= sideDir;
+			cameraLook -= sideDir;
+			glutPostRedisplay();
+			break;
+	}
+}  
+
+void specialKeyPressed(int key, int x, int y) {
+	
+	glm::vec3 sideDir = glm::normalize( glm::cross(cameraPos, glm::vec3(0, 1, 0)) );
+	glm::vec3 cameraPosNorm = glm::normalize(cameraPos);
+
+	switch(key){
+		case GLUT_KEY_UP:
+			cameraLook.y += 1;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_DOWN:
+			cameraLook.y -= 1;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_LEFT:
+			cameraLook += sideDir;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_RIGHT:
+			cameraLook -= sideDir;
+			glutPostRedisplay();
+			break;
+	}
+}
+
 static void display(){
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -103,6 +157,7 @@ static void display(){
 		}
 	}
 
+	updateMVP();
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 
 	test.render();
@@ -128,6 +183,8 @@ int main(int argc, char* argv[])
     init_resources();
 
 	glutDisplayFunc(display);
+	glutKeyboardFunc(keyPressed);
+	glutSpecialFunc(specialKeyPressed);
 	glutMainLoop();
 
     glDeleteProgram(program); // Free resources

@@ -28,19 +28,26 @@ GLuint program;
 GLint attribute_coord;
 GLint uniform_mvp;
 
-// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-// Camera matrix
-glm::mat4 View       = glm::lookAt(
-    glm::vec3(25, 25, 25), // The position which the camera has in world space
-    glm::vec3(0,0,0), // and looks at the origin
-    glm::vec3(0,1,0) // Head is up (set to 0,-1,0 to look upside-down)
-);
-// Model matrix : an identity matrix (model will be at the origin)
-glm::mat4 Model      = glm::mat4(1.0f);  // Changes for each model!
-// ModelViewProjection : multiplication of our 3 matrices
-// Matrix multiplication is the other way around
-glm::mat4 mvp        = Projection * View * Model;
+glm::vec3 cameraPos(25, 25, 25);
+glm::vec3 cameraLook(0, 0, 0);
+glm::mat4 mvp;
+
+void updateMVP(){
+
+	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+	// Camera matrix
+	glm::mat4 View       = glm::lookAt(
+		cameraPos, // The position which the camera has in world space
+		cameraLook, // and looks at the origin
+		glm::vec3(0,1,0) // Head is up (set to 0,-1,0 to look upside-down)
+	);
+	// Model matrix : an identity matrix (model will be at the origin)
+	glm::mat4 Model      = glm::mat4(1.0f);  // Changes for each model!
+	// ModelViewProjection : multiplication of our 3 matrices
+	// Matrix multiplication is the other way around
+	mvp        = Projection * View * Model;
+}
 
 struct chunk
 {
