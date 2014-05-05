@@ -13,11 +13,12 @@ int init_resources()
 #else
     "#version 120\n"  // OpenGL 2.1
 #endif
-    "attribute vec2 coord2d;                  "
-    "varying vec4 texcoord;                   "
-    "uniform mat4 mvp;                        "
-    "void main(void) {                        "
-    "  gl_Position = vec4(coord2d, 0.0, 1.0); "
+    "attribute vec4 coord;                       "
+    "varying vec4 texcoord;                      "
+    "uniform mat4 mvp;                           "
+    "void main(void) {                           "
+    "    texcoord = coord;                       "
+    "    gl_Position = vec4(coord.xyz, 1); "
     "}";
 
     glShaderSource(vs, 1, &vs_source, NULL);
@@ -37,9 +38,9 @@ int init_resources()
 #else
     "#version 120\n"  // OpenGL 2.1
 #endif
-    "attribute vec4 texcoord  "
+    "varying vec4 texcoord  "
     "void main(void) {        "
-    "   gl_FragColor = vec4(texcoord.w / 128.0, texcoord.w / 256.0, texcoord.w / 512.0, 1.0);"
+    "    gl_FragColor = vec4(texcoord.w / 128.0, texcoord.w / 256.0, texcoord.w / 512.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -64,12 +65,12 @@ int init_resources()
         return 0;
     }
 
-    const char* attribute_name = "coord2d";
-    attribute_coord = glGetAttribLocation(program, attribute_name);
+    attribute_coord = glGetAttribLocation(program, "coord");
+    uniform_mvp = glGetAttribLocation(program, "mvp");
 
-    if(attribute_coord == -1)
+    if(attribute_coord == -1 || uniform_mvp == -1)
     {
-        fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+        fprintf(stderr, "Could not bind 'some' attribute\n");
         return 0;
     }
 
@@ -96,7 +97,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // TODO Init resources
-    // TODO Free resources
+    init_resources();
+    //glutMainLoop();
+    glDeleteProgram(program); // Free resources
     return 0;
 }
