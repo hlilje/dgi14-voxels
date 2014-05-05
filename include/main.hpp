@@ -1,4 +1,3 @@
-//#pragma comment(lib, "glew32.lib")
 #pragma once
 
 #include <iostream>
