@@ -2,6 +2,19 @@
 
 using namespace std;
 
+// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+glm::mat4 Projection = glm::perspective(100.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+// Camera matrix
+glm::mat4 View       = glm::lookAt(
+    glm::vec3(2, 2, 2), // The position which the camera has in world space
+    glm::vec3(0,0,0), // and looks at the origin
+    glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+);
+// Model matrix : an identity matrix (model will be at the origin)
+glm::mat4 Model      = glm::mat4(1.0f);  // Changes for each model !
+// Our ModelViewProjection : multiplication of our 3 matrices
+glm::mat4 mvp        = Projection * View * Model; // Remember, matrix multiplication is the other way around
+
 int init_resources()
 {
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
@@ -18,7 +31,7 @@ int init_resources()
     "uniform mat4 mvp;                           "
     "void main(void) {                           "
     "    texcoord = coord;                       "
-    "    gl_Position = vec4(coord.xyz, 1); "
+    "    gl_Position = mvp * vec4(coord.xyz, 1); "
     "}";
 
     glShaderSource(vs, 1, &vs_source, NULL);
@@ -38,7 +51,7 @@ int init_resources()
 #else
     "#version 120\n"  // OpenGL 2.1
 #endif
-    "varying vec4 texcoord  "
+    "varying vec4 texcoord;  "
     "void main(void) {        "
     "    gl_FragColor = vec4(texcoord.w / 128.0, texcoord.w / 256.0, texcoord.w / 512.0, 1.0);"
     "}";
@@ -66,7 +79,7 @@ int init_resources()
     }
 
     attribute_coord = glGetAttribLocation(program, "coord");
-    uniform_mvp = glGetAttribLocation(program, "mvp");
+	uniform_mvp = glGetUniformLocation(program, "mvp");
 
     if(attribute_coord == -1 || uniform_mvp == -1)
     {
@@ -77,6 +90,32 @@ int init_resources()
     return 1;
 }
 
+static void display(){
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+
+	glUseProgram(program);
+	glEnableVertexAttribArray(attribute_coord);
+
+	chunk test;
+	for(int x = 0; x < 1; x++){
+		for(int y = 0; y < 1; y++){
+			for(int z = 0; z < 1; z++){
+				test.set(x, y, z, 1);
+			}
+		}
+	}
+
+	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+	
+	test.render();
+
+	glDisableVertexAttribArray(attribute_coord);
+	glutSwapBuffers();
+}
+
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
@@ -85,20 +124,17 @@ int main(int argc, char* argv[])
     glutCreateWindow("GLEScraft");
 
     GLenum glew_status = glewInit();
-    if(GLEW_OK != glew_status)
-    {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
-        return 1;
-    }
-
-    if(!GLEW_VERSION_2_0)
-    {
-        fprintf(stderr, "No support for OpenGL 2.0 found\n");
-        return 1;
-    }
+	
+	if (glew_status != GLEW_OK) {
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
+		return 1;
+	}
 
     init_resources();
-    //glutMainLoop();
+
+	glutDisplayFunc(display);
+	glutMainLoop();
+
     glDeleteProgram(program); // Free resources
     return 0;
 }
