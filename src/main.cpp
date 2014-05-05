@@ -140,17 +140,17 @@ static void display(){
 	glUseProgram(program);
 	glEnableVertexAttribArray(attribute_coord);
 
-	chunk test;
+	superchunk test;
 	srand(time(NULL));
 
-	for(int x = 0; x < CX; x++)
+	for(int x = 0; x < SCX; x++)
 	{
-		for(int y = 0; y < CY; y++)
+		for(int y = 0; y < SCY; y++)
 		{
-			for(int z = 0; z < CZ; z++)
+			for(int z = 0; z < SCZ; z++)
 			{
 				if((rand() % 4) == 0)
-				{ 
+				{
 					test.set(x, y, z, 1);
 				}
 			}
@@ -171,11 +171,12 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    glutCreateWindow("Voxel Renderer");
+    glutCreateWindow(PROGRAM_NAME);
 
     GLenum glew_status = glewInit();
 
-	if (glew_status != GLEW_OK) {
+	if (glew_status != GLEW_OK)
+	{
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
 		return 1;
 	}
