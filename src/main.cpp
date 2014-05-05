@@ -96,7 +96,7 @@ static void display(){
 			for(int z = 0; z < CZ; z++)
 			{
 				if((rand() % 4) == 0)
-				{ 
+				{
 					test.set(x, y, z, 1);
 				}
 			}
@@ -120,7 +120,8 @@ int main(int argc, char* argv[])
 
     GLenum glew_status = glewInit();
 
-	if (glew_status != GLEW_OK) {
+	if (glew_status != GLEW_OK)
+	{
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
 		return 1;
 	}

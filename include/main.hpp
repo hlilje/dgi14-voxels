@@ -23,7 +23,7 @@
 #define SCZ 16
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
-#define PROGRAM_NAME "VoxelRenderer"
+#define PROGRAM_NAME "Voxel Renderer"
 
 // Use medium precision
 typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
@@ -110,7 +110,7 @@ struct chunk
                     vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
                     vertex[i++] = byte4(x + 1, y    , z + 1, blk[x][y][z]);
 
-                    // View from negative y 
+                    // View from negative y
                     vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
                     vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
                     vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
@@ -118,7 +118,7 @@ struct chunk
                     vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
                     vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
 
-                    // View from positive y 
+                    // View from positive y
                     vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
                     vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
                     vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
