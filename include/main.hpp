@@ -15,12 +15,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define CX 16
-#define CY 16
-#define CZ 16
-#define SCX 16
-#define SCY 16
-#define SCZ 16
+#define CX 32
+#define CY 32
+#define CZ 32
+#define SCX 32
+#define SCY 32
+#define SCZ 32
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"
@@ -36,7 +36,7 @@ GLint uniform_mvp;
 glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 // Camera matrix
 glm::mat4 View       = glm::lookAt(
-    glm::vec3(25, 25, 25), // The position which the camera has in world space
+    glm::vec3(55, 55, 55), // The position which the camera has in world space
     glm::vec3(0,0,0), // and looks at the origin
     glm::vec3(0,1,0) // Head is up (set to 0,-1,0 to look upside-down)
 );
