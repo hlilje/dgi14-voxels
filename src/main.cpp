@@ -86,7 +86,7 @@ static void display(){
 	glUseProgram(program);
 	glEnableVertexAttribArray(attribute_coord);
 
-	chunk test;
+	superchunk test;
 	srand(time(NULL));
 
 	for(int x = 0; x < CX; x++)

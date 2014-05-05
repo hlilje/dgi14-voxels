@@ -224,7 +224,7 @@ struct superchunk
                 for(int z = 0; z < SCZ; z++)
                     if(c[x][y][z])
                     {
-                        glm::mat4 model = glm::translate(glm::mat4(1), glm::vec3(x * CX, y * CY, z * CZ));
+                        //glm::mat4 model = glm::translate(glm::mat4(1), glm::vec3(x * CX, y * CY, z * CZ));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
                     }
