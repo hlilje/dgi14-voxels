@@ -101,9 +101,9 @@ static void display(){
 
 	chunk test;
 	srand(time(NULL));
-	for(int x = 0; x < 16; x++){
-		for(int y = 0; y < 16; y++){
-			for(int z = 0; z < 16; z++){
+	for(int x = 0; x < CX; x++){
+		for(int y = 0; y < CY; y++){
+			for(int z = 0; z < CZ; z++){
 				if((rand() % 4) == 0){ 
 					test.set(x, y, z, 1);
 				}
@@ -123,8 +123,8 @@ int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-    glutInitWindowSize(640, 480);
-    glutCreateWindow("GLEScraft");
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Voxel Renderer");
 
     GLenum glew_status = glewInit();
 	
