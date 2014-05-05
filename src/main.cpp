@@ -13,11 +13,12 @@ int init_resources()
 #else
     "#version 120\n"  // OpenGL 2.1
 #endif
-    "attribute vec2 coord2d;                  "
-    "varying vec4 texcoord;                   "
-    "uniform mat4 mvp;                        "
-    "void main(void) {                        "
-    "  gl_Position = vec4(coord2d, 0.0, 1.0); "
+    "attribute vec4 coord;                       "
+    "varying vec4 texcoord;                      "
+    "uniform mat4 mvp;                           "
+    "void main(void) {                           "
+    "    texcoord = coord;                       "
+    "    gl_Position = vec4(coord.xyz, 1); "
     "}";
 
     glShaderSource(vs, 1, &vs_source, NULL);
@@ -37,9 +38,9 @@ int init_resources()
 #else
     "#version 120\n"  // OpenGL 2.1
 #endif
-    "attribute vec4 texcoord  "
+    "varying vec4 texcoord  "
     "void main(void) {        "
-    "   gl_FragColor = vec4(texcoord.w / 128.0, texcoord.w / 256.0, texcoord.w / 512.0, 1.0);"
+    "    gl_FragColor = vec4(texcoord.w / 128.0, texcoord.w / 256.0, texcoord.w / 512.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -52,11 +53,11 @@ int init_resources()
         return 0;
     }
 
-    _program = glCreateProgram();
-    glAttachShader(_program, vs);
-    glAttachShader(_program, fs);
-    glLinkProgram(_program);
-    glGetProgramiv(_program, GL_LINK_STATUS, &link_ok);
+    program = glCreateProgram();
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &link_ok);
 
     if(!link_ok)
     {
@@ -64,43 +65,40 @@ int init_resources()
         return 0;
     }
 
-    const char* attribute_name = "coord2d";
-    _attribute_coord2d = glGetAttribLocation(_program, attribute_name);
+    attribute_coord = glGetAttribLocation(program, "coord");
+    uniform_mvp = glGetAttribLocation(program, "mvp");
 
-    if(_attribute_coord2d == -1)
+    if(attribute_coord == -1 || uniform_mvp == -1)
     {
-        fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+        fprintf(stderr, "Could not bind 'some' attribute\n");
         return 0;
     }
 
     return 1;
 }
 
-void draw()
-{
-    // Background colour
-    glClearColor(0, 1, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // Draw order
-    glFlush();
-}
-
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitWindowSize(640, 480);
+    glutCreateWindow("GLEScraft");
 
-    // Simple buffer
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowPosition(50, 25);
-    glutInitWindowSize(500, 250);
-    glutCreateWindow("Green Window");
+    GLenum glew_status = glewInit();
+    if(GLEW_OK != glew_status)
+    {
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
+        return 1;
+    }
 
-    glm::vec3 a; // Test
+    if(!GLEW_VERSION_2_0)
+    {
+        fprintf(stderr, "No support for OpenGL 2.0 found\n");
+        return 1;
+    }
 
-    // Draw
-    glutDisplayFunc(draw);
-    glutMainLoop();
-    cout << "Hello" << endl;
+    init_resources();
+    //glutMainLoop();
+    glDeleteProgram(program); // Free resources
     return 0;
 }
