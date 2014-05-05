@@ -1,5 +1,5 @@
-//#pragma (lib, "glew32.lib");
 #pragma once
+//#pragma (lib, "glew32.lib");
 
 #include <iostream>
 #include <stdlib.h>
@@ -38,23 +38,6 @@ glm::vec3 cameraPos(25, 25, 25);
 glm::vec3 cameraLook(0, 0, 0);
 glm::mat4 mvp;
 
-void updateMVP(){
-
-	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-	// Camera matrix
-	glm::mat4 View       = glm::lookAt(
-		cameraPos, // The position which the camera has in world space
-		cameraLook, // and looks at the origin
-		glm::vec3(0,1,0) // Head is up (set to 0,-1,0 to look upside-down)
-	);
-	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model      = glm::mat4(1.0f);  // Changes for each model!
-	// ModelViewProjection : multiplication of our 3 matrices
-	// Matrix multiplication is the other way around
-	mvp        = Projection * View * Model;
-}
-
 struct chunk
 {
     uint8_t blk[CX][CY][CZ];
@@ -67,6 +50,7 @@ struct chunk
         memset(blk, 0, sizeof blk);
         elements = 0;
         changed = true;
+        // Set array where to store generated buffer object names
         glGenBuffers(1, &vbo);
     }
 
@@ -99,8 +83,7 @@ struct chunk
             {
                 for(int z = 0; z < CZ; z++)
                 {
-                    // Empty block?
-                    if(!blk[x][y][z])
+                    if(!blk[x][y][z]) // Empty block?
                         continue;
 
                     // View from negative x
@@ -155,7 +138,8 @@ struct chunk
         }
 
         elements = i;
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo); // Set target buffer object
+        // Create and init buffer object's data store
         glBufferData(GL_ARRAY_BUFFER, elements * sizeof *vertex, vertex, GL_STATIC_DRAW);
     }
 
@@ -164,16 +148,17 @@ struct chunk
         if(changed)
             update();
 
-        // If this chunk is empty, we don't need to draw anything.
+        // Don't draw anything if the chunk is empty
         if(!elements)
             return;
 
-        glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE); // Cull polys based on winding in window coord
         glEnable(GL_DEPTH_TEST);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        // Define array of generic vertex attribute data
         glVertexAttribPointer(attribute_coord, 4, GL_BYTE, GL_FALSE, 0, 0);
-        glDrawArrays(GL_TRIANGLES, 0, elements);
+        glDrawArrays(GL_TRIANGLES, 0, elements); // Render primitives from array data
     }
 };
 

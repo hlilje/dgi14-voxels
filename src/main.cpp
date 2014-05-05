@@ -23,7 +23,7 @@ int init_resources()
 
     glShaderSource(vs, 1, &vs_source, NULL);
     glCompileShader(vs);
-    glGetShaderiv(vs, GL_COMPILE_STATUS, &compile_ok);
+    glGetShaderiv(vs, GL_COMPILE_STATUS, &compile_ok); // Get shader info
 
     if(!compile_ok)
     {
@@ -53,11 +53,11 @@ int init_resources()
         return 0;
     }
 
-    program = glCreateProgram();
+    program = glCreateProgram(); // Create empty program object
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
-    glGetProgramiv(program, GL_LINK_STATUS, &link_ok);
+    glGetProgramiv(program, GL_LINK_STATUS, &link_ok); // Get program info
 
     if(!link_ok)
     {
@@ -77,16 +77,17 @@ int init_resources()
     return 1;
 }
 
-void keyPressed (unsigned char key, int x, int y) {  
-	
-	glm::vec3 sideDir = glm::normalize( glm::cross(cameraPos, glm::vec3(0, 1, 0)) );
+void keyPressed(unsigned char key, int x, int y)
+{
+	glm::vec3 sideDir = glm::normalize(glm::cross(cameraPos, glm::vec3(0, 1, 0)));
 	glm::vec3 cameraPosNorm = glm::normalize(cameraPos);
 
-	switch(key){
+	switch(key)
+	{
 		case 'w':
 			cameraLook -= cameraPosNorm;
 			cameraPos -= cameraPosNorm;
-			glutPostRedisplay();
+			glutPostRedisplay(); // Mark current window as needing to be redisplayed
 			break;
 		case 's':
 			cameraLook += cameraPosNorm;
@@ -104,11 +105,11 @@ void keyPressed (unsigned char key, int x, int y) {
 			glutPostRedisplay();
 			break;
 	}
-}  
+}
 
-void specialKeyPressed(int key, int x, int y) {
-	
-	glm::vec3 sideDir = glm::normalize( glm::cross(cameraPos, glm::vec3(0, 1, 0)) );
+void specialKeyPressed(int key, int x, int y)
+{
+	glm::vec3 sideDir = glm::normalize(glm::cross(cameraPos, glm::vec3(0, 1, 0)));
 	glm::vec3 cameraPosNorm = glm::normalize(cameraPos);
 
 	switch(key){
@@ -131,13 +132,33 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 }
 
-static void display(){
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_POLYGON_OFFSET_FILL);
+void updateMVP()
+{
+	// Projection matrix, 45° FOV, 4:3 ratio, display range: 0.1 unit <-> 100 units
+	// Describes the set of linear equations that transforms vectors from eye to clip space
+	glm::mat4 projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+	// Camera matrix
+	glm::mat4 view = glm::lookAt(
+        cameraPos, // The position which the camera has in world space
+		cameraLook, // and looks at the origin
+		glm::vec3(0, 1, 0) // Head is up (set to 0, -1, 0 to look upside-down)
+	);
+	// Model matrix, an identity matrix (model will be at the origin)
+	glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
+	// ModelViewProjection, multiplication of the 3 matrices
+	// Matrix multiplication is the other way around
+	mvp = projection * view * model;
+}
 
-	glUseProgram(program);
+void display()
+{
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
+	glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
+	glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
+
+	glUseProgram(program); // Set current renering state
+	// Enable generic vertex attribute array to access as defualt by vertex commands
 	glEnableVertexAttribArray(attribute_coord);
 
 	superchunk test;
@@ -160,20 +181,22 @@ static void display(){
 	}
 
 	updateMVP();
+	// Specify the value of a uniform variable for the current program object
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 
 	test.render();
 
 	glDisableVertexAttribArray(attribute_coord);
-	glutSwapBuffers();
+	glutSwapBuffers(); // Buffer swap used layer for current window
 }
 
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
+    // RGB mode, depth buffer, double buffer
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    glutCreateWindow(PROGRAM_NAME);
+    glutCreateWindow(PROGRAM_NAME); // Create top-level window
 
     GLenum glew_status = glewInit();
 
@@ -185,9 +208,9 @@ int main(int argc, char* argv[])
 
     init_resources();
 
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyPressed);
-	glutSpecialFunc(specialKeyPressed);
+	glutDisplayFunc(display); // Set display callback for current window
+	glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
+	glutSpecialFunc(specialKeyPressed); // For func or dir keys
 	glutMainLoop();
 
     glDeleteProgram(program); // Free resources

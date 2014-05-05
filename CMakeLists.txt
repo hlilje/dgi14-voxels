@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(VoxelRenderer)
 
-subdirs(src include)
+subdirs(src include shader)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
