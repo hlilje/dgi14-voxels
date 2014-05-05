@@ -142,6 +142,8 @@ static void display(){
 
 	superchunk test;
 	srand(time(NULL));
+	// TODO
+	//PerlinNoise pn;
 
 	for(int x = 0; x < SCX; x++)
 	{
