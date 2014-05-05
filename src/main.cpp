@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    glutCreateWindow("Voxel Renderer");
+    glutCreateWindow(PROGRAM_NAME);
 
     GLenum glew_status = glewInit();
 
