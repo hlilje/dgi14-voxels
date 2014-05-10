@@ -79,28 +79,23 @@ int init_resources()
 
 void keyPressed (unsigned char key, int x, int y) {  
 	
-	glm::vec3 sideDir = glm::normalize( glm::cross(cameraPos, glm::vec3(0, 1, 0)) );
-	glm::vec3 cameraPosNorm = glm::normalize(cameraPos);
+	glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
 
 	switch(key){
 		case 'w':
-			cameraLook -= cameraPosNorm;
-			cameraPos -= cameraPosNorm;
+			cameraPos += cameraLook;
 			glutPostRedisplay();
 			break;
 		case 's':
-			cameraLook += cameraPosNorm;
-			cameraPos += cameraPosNorm;
+			cameraPos -= cameraLook;
 			glutPostRedisplay();
 			break;
 		case 'a':
-			cameraPos += sideDir;
-			cameraLook += sideDir;
+			cameraPos -= sideDir;
 			glutPostRedisplay();
 			break;
 		case 'd':
-			cameraPos -= sideDir;
-			cameraLook -= sideDir;
+			cameraPos += sideDir;
 			glutPostRedisplay();
 			break;
 	}
@@ -108,24 +103,25 @@ void keyPressed (unsigned char key, int x, int y) {
 
 void specialKeyPressed(int key, int x, int y) {
 	
-	glm::vec3 sideDir = glm::normalize( glm::cross(cameraPos, glm::vec3(0, 1, 0)) );
-	glm::vec3 cameraPosNorm = glm::normalize(cameraPos);
+	cameraLook = glm::normalize(cameraLook);
+	glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
+	glm::vec3 scaleVec(0.1, 0.0, 0.1);
 
 	switch(key){
 		case GLUT_KEY_UP:
-			cameraLook.y += 1;
+			cameraLook.y -= 0.1;
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_DOWN:
-			cameraLook.y -= 1;
+			cameraLook.y += 0.1;
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_LEFT:
-			cameraLook += sideDir;
+			cameraLook -= sideDir * scaleVec;
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_RIGHT:
-			cameraLook -= sideDir;
+			cameraLook += sideDir * scaleVec;
 			glutPostRedisplay();
 			break;
 	}
@@ -149,7 +145,7 @@ static void display(){
 		{
 			for(int z = 0; z < SCZ; z++)
 			{
-				if((rand() % 4) == 0)
+				if((rand() % 10) == 0)
 				{
 					test.set(x, y, z, 1);
 				}

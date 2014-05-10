@@ -15,9 +15,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define CX 32
-#define CY 32
-#define CZ 32
+#define CX 18
+#define CY 18
+#define CZ 18
 #define SCX 32
 #define SCY 32
 #define SCZ 32
@@ -33,7 +33,7 @@ GLint attribute_coord;
 GLint uniform_mvp;
 
 glm::vec3 cameraPos(25, 25, 25);
-glm::vec3 cameraLook(0, 0, 0);
+glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
 glm::mat4 mvp;
 
 void updateMVP(){
@@ -43,13 +43,11 @@ void updateMVP(){
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
 		cameraPos, // The position which the camera has in world space
-		cameraLook, // and looks at the origin
-		glm::vec3(0,1,0) // Head is up (set to 0,-1,0 to look upside-down)
+		cameraPos + cameraLook, // and where it looks
+		glm::vec3(0,1,0) // Head is up
 	);
 	// Model matrix : an identity matrix (model will be at the origin)
 	glm::mat4 Model      = glm::mat4(1.0f);  // Changes for each model!
-	// ModelViewProjection : multiplication of our 3 matrices
-	// Matrix multiplication is the other way around
 	mvp        = Projection * View * Model;
 }
 
