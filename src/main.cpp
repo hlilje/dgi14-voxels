@@ -166,26 +166,20 @@ void display()
 		{
 			for(int z = 0; z < SCZ; z++)
 			{
-				//if((rand() % 10) == 0)
-				//{
-                    // Generate noise
-                    double i = (double)x / ((double)SCX);
-                    double j = (double)y / ((double)SCY);
-                    double k = (double)z / ((double)SCZ);
-                    double n = pn.noise(10 * i, 10 * j, 10 * k);
-                    //cout << n << endl;
+                // Generate noise
+                double i = (double)x / ((double)SCX);
+                double j = (double)y / ((double)SCY);
+                double k = (double)z / ((double)SCZ);
+                double n = pn.noise(10 * i, 10 * j, 10 * k);
 
-                    // Wood like structure
-                    n = 20 * pn.noise(i, j, k);
-                    n = n - floor(n);
-                    //cout << n << endl;
+                // Wood-like structure
+                //n = 20 * pn.noise(i, j, k);
+                //n = n - floor(n);
 
-                    int s = floor(SCZ * n);
-                    //cout << s << endl;
-
-					//test.set(x, y, z, 1);
-					test.set(s, s, s, 1);
-				//}
+                int a = floor(x * n);
+                int b = floor(y * n);
+                int c = floor(z * n);
+                test.set(a, b, c, 1);
 			}
 		}
 	}
