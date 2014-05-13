@@ -77,8 +77,8 @@ int init_resources()
     return 1;
 }
 
-void keyPressed (unsigned char key, int x, int y) {  
-	
+void keyPressed (unsigned char key, int x, int y)
+{
 	glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
 
 	switch(key)
@@ -102,8 +102,8 @@ void keyPressed (unsigned char key, int x, int y) {
 	}
 }
 
-void specialKeyPressed(int key, int x, int y) {
-	
+void specialKeyPressed(int key, int x, int y)
+{
 	cameraLook = glm::normalize(cameraLook);
 	glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
 	glm::vec3 scaleVec(0.1, 0.0, 0.1);
@@ -156,8 +156,9 @@ void display()
 
 	superchunk test;
 	srand(time(NULL));
-	// TODO
-	//PerlinNoise pn;
+
+	// Create a PerlinNoise object with the reference permutation vector
+	PerlinNoise pn;
 
 	for(int x = 0; x < SCX; x++)
 	{
@@ -165,10 +166,26 @@ void display()
 		{
 			for(int z = 0; z < SCZ; z++)
 			{
-				if((rand() % 10) == 0)
-				{
-					test.set(x, y, z, 1);
-				}
+				//if((rand() % 10) == 0)
+				//{
+                    // Generate noise
+                    double i = (double)x / ((double)SCX);
+                    double j = (double)y / ((double)SCY);
+                    double k = (double)z / ((double)SCZ);
+                    double n = pn.noise(10 * i, 10 * j, 10 * k);
+                    //cout << n << endl;
+
+                    // Wood like structure
+                    n = 20 * pn.noise(i, j, k);
+                    n = n - floor(n);
+                    //cout << n << endl;
+
+                    int s = floor(SCZ * n);
+                    //cout << s << endl;
+
+					//test.set(x, y, z, 1);
+					test.set(s, s, s, 1);
+				//}
 			}
 		}
 	}

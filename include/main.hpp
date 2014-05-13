@@ -16,6 +16,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "../include/PerlinNoise.hpp"
 
+//#include "../src/perlin.c" // Bad
+
 #define CX 18
 #define CY 18
 #define CZ 18

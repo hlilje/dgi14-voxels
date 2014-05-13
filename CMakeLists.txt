@@ -7,7 +7,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 
-set(SOURCES src/main.cpp src/Renderer.cpp src/PerlinNoise.cpp)
+set(SOURCES src/main.cpp src/Renderer.cpp src/PerlinNoise.cpp src/perlin.c)
 set(HEADERS include/main.hpp include/Renderer.hpp include/PerlinNoise.hpp)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
