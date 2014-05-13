@@ -1,1 +1,4 @@
 This project currently has no specified license.
+
+The C++ Perlin noise implementation is used under GPL v3.
+The original C Perlin noise implementation is copyrighted by Ken Perlin.
