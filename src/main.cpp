@@ -40,7 +40,7 @@ int init_resources()
 #endif
     "varying vec4 texcoord;  "
     "void main(void) {        "
-    "    gl_FragColor = vec4(texcoord.x / 16.0, texcoord.y / 16.0, texcoord.z / 16.0, 1.0);"
+    "    gl_FragColor = vec4(texcoord.x / 32.0, texcoord.y / 16.0, texcoord.z / 32.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -177,7 +177,7 @@ void display()
                 //n = n - floor(n);
 
                 int a = floor(x * n);
-                int b = floor(y * n);
+                int b = floor(y * n/4);
                 int c = floor(z * n);
                 test.set(a, b, c, 1);
 			}

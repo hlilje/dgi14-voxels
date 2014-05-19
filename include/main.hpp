@@ -18,13 +18,13 @@
 
 //#include "../src/perlin.c" // Bad
 
-#define CX 18
-#define CY 18
-#define CZ 18
+#define CX 32
+#define CY 32
+#define CZ 32
 
-#define SCX 32
-#define SCY 32
-#define SCZ 32
+#define SCX 64
+#define SCY 64
+#define SCZ 64
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"
