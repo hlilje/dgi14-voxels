@@ -83,18 +83,43 @@ struct chunk
         {
             for(int y = 0; y < CY; y++)
             {
+                bool visible = false;
                 for(int z = 0; z < CZ; z++)
                 {
                     if(!blk[x][y][z]) // Empty block?
+                    {
+                        visible = false;
                         continue;
+                    }
 
                     // View from negative x
-                    vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                    vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+
+                    // Check if we are the same type as the previous block,
+                    // if so merge the triangles
+                    if(visible && blk[x][y][z] == blk[x - 1][y][z])
+                    {
+                        vertex[i - 5] = byte4(x,     y,     z + 1, blk[x][y][z]);        
+                        vertex[i - 2] = byte4(x,     y,     z + 1, blk[x][y][z]);        
+                        vertex[i - 1] = byte4(x,     y + 1, z + 1, blk[x][y][z]);        
+                    }
+
+                    else
+
+                    // Only draw if no block in front
+                    if(x > 0 && !blk[x - 1][y][z])
+                    {
+                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
+                    }
 
                     // View from positive x
                     vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
