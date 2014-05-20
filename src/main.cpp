@@ -4,6 +4,14 @@ using namespace std;
 
 int init_resources()
 {
+    // Do an initial support check for textures
+    int vertex_texture_units;
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &vertex_texture_units);
+    if(!vertex_texture_units) {
+        fprintf(stderr, "Your graphics cards does not support texture lookups in the vertex shader\n");
+        return 0;
+    }
+
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
 
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
@@ -38,9 +46,13 @@ int init_resources()
 #else
     "#version 120\n"  // OpenGL 2.1
 #endif
-    "varying vec4 texcoord;  "
-    "void main(void) {        "
-    "    gl_FragColor = vec4(texcoord.x / 32.0, texcoord.y / 16.0, texcoord.z / 32.0, 1.0);"
+    "varying vec4 texcoord;         "
+    "uniform sampler2D texture;     "
+    "void main(void) {              "
+    "    if(texcoord.w < 0.0)       "
+    "        gl_FragColor = texture2D((fract(texcoord.x) + texcoord.w) / 16.0, texcoord.z);"
+    "    else                       "
+    "        gl_FragColor = texture2D((fract(texcoord.x + texcoord.z) + texcoord.w) / 16.0, texcoord.y);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -73,6 +85,13 @@ int init_resources()
         fprintf(stderr, "Could not bind 'some' attribute\n");
         return 0;
     }
+
+    // Upload the texture with the datapoints
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     return 1;
 }
@@ -147,10 +166,18 @@ void display()
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
+
 	glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
 	glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
 
 	glUseProgram(program); // Set current renering state
+
+    glUniform1i(uniform_texture, 0); // Specify location
+    // Set texture interpolation mode
+    // Use GL_NEAREST_MIPMAP_LINEAR to use mipmaps
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	// Enable generic vertex attribute array to access as defualt by vertex commands
 	glEnableVertexAttribArray(attribute_coord);
 

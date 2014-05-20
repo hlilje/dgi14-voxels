@@ -9,6 +9,7 @@ find_package(GLUT REQUIRED)
 
 set(SOURCES src/main.cpp src/Renderer.cpp src/PerlinNoise.cpp src/perlin.c)
 set(HEADERS include/main.hpp include/Renderer.hpp include/PerlinNoise.hpp)
+set(SHADERS shader/textures.c)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     message(STATUS "GCC detected, adding compile flags")
@@ -20,5 +21,5 @@ elseif(MSVC)
     include_directories(${PROJECT_SOURCE_DIR}/glm)
 endif()
 
-add_executable(main ${SOURCES} ${HEADERS})
+add_executable(main ${SOURCES} ${HEADERS} ${SHADERS})
 target_link_libraries(main ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARY})

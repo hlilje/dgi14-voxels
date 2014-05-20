@@ -17,6 +17,7 @@
 #include "../include/PerlinNoise.hpp"
 
 //#include "../src/perlin.c" // Bad
+#include "../shader/textures.c"
 
 #define CX 32
 #define CY 32
@@ -35,6 +36,8 @@ typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
 GLuint program;
 GLint attribute_coord;
 GLint uniform_mvp;
+GLuint texture;
+GLint uniform_texture;
 
 glm::vec3 cameraPos(25, 25, 25);
 glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
@@ -93,18 +96,6 @@ struct chunk
                     }
 
                     // View from negative x
-
-                    // Check if we are the same type as the previous block,
-                    // if so merge the triangles
-                    if(visible && blk[x][y][z] == blk[x - 1][y][z])
-                    {
-                        vertex[i - 5] = byte4(x,     y,     z + 1, blk[x][y][z]);        
-                        vertex[i - 2] = byte4(x,     y,     z + 1, blk[x][y][z]);        
-                        vertex[i - 1] = byte4(x,     y + 1, z + 1, blk[x][y][z]);        
-                    }
-
-                    else
-
                     // Only draw if no block in front
                     if(x > 0 && !blk[x - 1][y][z])
                     {
