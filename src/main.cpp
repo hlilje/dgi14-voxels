@@ -49,10 +49,7 @@ int init_resources()
     "varying vec4 texcoord;         "
     "uniform sampler2D texture;     "
     "void main(void) {              "
-    "    if(texcoord.w < 0.0)       "
-    "        gl_FragColor = texture2D((fract(texcoord.x) + texcoord.w) / 16.0, texcoord.z);"
-    "    else                       "
-    "        gl_FragColor = texture2D((fract(texcoord.x + texcoord.z) + texcoord.w) / 16.0, texcoord.y);"
+	"    gl_FragColor = vec4(texcoord.x / 16.0, texcoord.y / 16.0, texcoord.z / 16.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -166,8 +163,6 @@ void updateMVP()
 		cameraPos + cameraLook, // and where it looks
 		glm::vec3(0,1,0) // Head is up
 	);
-	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model      = glm::mat4(1.0f);  // Changes for each model!
 	mvp        = Projection * View * Model;
 }
 
@@ -194,13 +189,14 @@ void display()
 	srand(time(NULL));
 
 	// Create a PerlinNoise object with the reference permutation vector
-	PerlinNoise pn;
+	int seed = rand();
+	PerlinNoise pn(seed);
 
-	for(int x = 0; x < SCX; x++)
+	for(int x = 0; x < (CX * SCX); x++)
 	{
-		for(int y = 0; y < SCY; y++)
+		for(int y = 0; y < (CY * SCY); y++)
 		{
-			for(int z = 0; z < SCZ; z++)
+			for(int z = 0; z < (CZ * SCZ); z++)
 			{
                 // Generate noise
                 double i = (double)x / ((double)SCX);
@@ -215,11 +211,15 @@ void display()
                 int a = floor(x * n);
                 int b = floor(y * n/4);
                 int c = floor(z * n);
-                test.set(a, b, c, 1);
+				if((rand() % 100) == 0)
+				{
+					test.set(x, y, z, 1);
+				}
 			}
 		}
 	}
 
+	glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(1000, 1000, 1000));
 	updateMVP();
 	// Specify the value of a uniform variable for the current program object
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));

@@ -19,13 +19,13 @@
 //#include "../src/perlin.c" // Bad
 #include "../shader/textures.c"
 
-#define CX 32
-#define CY 32
-#define CZ 32
+#define CX 10
+#define CY 10
+#define CZ 10
 
-#define SCX 64
-#define SCY 64
-#define SCZ 64
+#define SCX 3
+#define SCY 3
+#define SCZ 3
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"
@@ -42,6 +42,11 @@ GLint uniform_texture;
 glm::vec3 cameraPos(25, 25, 25);
 glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
 glm::mat4 mvp;
+
+// Model matrix : an identity matrix (model will be at the origin)
+glm::mat4 Model = glm::mat4(1.0f);  // Changes for each model!
+
+void updateMVP();
 
 struct chunk
 {
@@ -169,7 +174,7 @@ struct chunk
                     }
                     else
                     {
-                    visible = false;
+						visible = false;
                     }
 
                     // View from positive z
@@ -267,13 +272,21 @@ struct superchunk
     void render()
     {
         for(int x = 0; x < SCX; x++)
+		{
             for(int y = 0; y < SCY; y++)
+			{
                 for(int z = 0; z < SCZ; z++)
+				{
                     if(c[x][y][z])
                     {
-                        //glm::mat4 model = glm::translate(glm::mat4(1), glm::vec3(x * CX, y * CY, z * CZ));
+                        //glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(rand() % 1000, rand() % 1000, rand() % 1000));
+						//updateMVP();
+						//glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
                     }
+				}
+			}
+		}
     }
 };
