@@ -19,13 +19,13 @@
 //#include "../src/perlin.c" // Bad
 #include "../shader/textures.c"
 
-#define CX 16
-#define CY 16
-#define CZ 16
+#define CX 10
+#define CY 10
+#define CZ 10
 
-#define SCX 2
-#define SCY 2
-#define SCZ 2
+#define SCX 10
+#define SCY 10
+#define SCZ 10
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"
@@ -36,15 +36,16 @@ typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
 GLuint program;
 GLint attribute_coord;
 GLint uniform_mvp;
+GLint uniform_Model;
 GLuint texture;
 GLint uniform_texture;
 
-glm::vec3 cameraPos(25, 25, 25);
+glm::vec3 cameraPos(100, 50, 100);
 glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
 glm::mat4 mvp;
 
 // Model matrix : an identity matrix (model will be at the origin)
-glm::mat4 Model = glm::mat4(1.0f);  // Changes for each model!
+glm::mat4 Model = glm::mat4(1.0f);  // Changes for each model
 
 void updateMVP();
 
@@ -102,95 +103,55 @@ struct chunk
 
                     // View from negative x
                     // Only draw if no block in front
-                    if(x > 0 && !blk[x - 1][y][z])
-                    {
-                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        visible = true;
-                    }
-                    else
-                    {
-                        visible = false;
-                    }
+                    vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                    
 
-                    // View from positive x
-                    if(x > 0 && !blk[x + 1][y][z])
-                    {
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y    , z + 1, blk[x][y][z]);
-                    }
-                    else
-                    {
-                        visible = false;
-                    }
+                    // View from positive 
+                    vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y    , z + 1, blk[x][y][z]);
+
 
                     // View from negative y
-                    if(x > 0 && !blk[x][y - 1][z])
-                    {
-                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                    }
-                    else
-                    {
-                        visible = false;
-                    }
+                    vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+
 
                     // View from positive y
-                    if(x > 0 && !blk[x][y + 1][z])
-                    {
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
-                    }
-                    else
-                    {
-                        visible = false;
-                    }
-
+                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
+                    
                     // View from negative z
-                    if(x > 0 && !blk[x][y][z - 1])
-                    {
-                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                    }
-                    else
-                    {
-						visible = false;
-                    }
+                    vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
 
                     // View from positive z
-                    if(x > 0 && !blk[x][y][z + 1])
-                    {
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
-                    }
-                    else
-                    {
-                        visible = false;
-                    }
+                    vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
+                    vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
                 }
             }
         }
@@ -281,6 +242,7 @@ struct superchunk
                     {
                         Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
 						updateMVP();
+						glUniformMatrix4fv(uniform_Model, 1, GL_FALSE, glm::value_ptr(Model));
 						glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
@@ -290,3 +252,5 @@ struct superchunk
 		}
     }
 };
+
+superchunk world;

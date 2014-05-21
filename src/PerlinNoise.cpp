@@ -40,13 +40,12 @@ PerlinNoise::PerlinNoise() {
 	int i = 0;
 	//Fills the vector with incrementing values from 0 to 255
 	for(std::vector<int>::iterator it = p.begin(); it != p.end(); ++it){
-		//*it = i;
-		*it = rand() % 255;
-		std::cout << *it << std::endl;
+		*it = i;
+		++i;
 	}
 
     // Shuffle using the above random engine
-    //std::random_shuffle(p.begin(), p.end());
+    std::random_shuffle(p.begin(), p.end());
 
     // Duplicate the permutation vector
     p.insert(p.end(), p.begin(), p.end());

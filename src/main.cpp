@@ -23,9 +23,10 @@ int init_resources()
 #endif
     "attribute vec4 coord;                       "
     "varying vec4 texcoord;                      "
+	"uniform mat4 Model;                         "
     "uniform mat4 mvp;                           "
     "void main(void) {                           "
-    "    texcoord = coord;                       "
+    "    texcoord = Model * coord;               "
     "    gl_Position = mvp * vec4(coord.xyz, 1); "
     "}";
 
@@ -49,7 +50,7 @@ int init_resources()
     "varying vec4 texcoord;         "
     "uniform sampler2D texture;     "
     "void main(void) {              "
-	"    gl_FragColor = vec4(texcoord.x / 16.0, texcoord.y / 16.0, texcoord.z / 16.0, 1.0);"
+	"    gl_FragColor = vec4(texcoord.x / 100.0, 150.0, texcoord.z / 100.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -83,6 +84,7 @@ int init_resources()
     }
 
     attribute_coord = glGetAttribLocation(program, "coord");
+	uniform_Model = glGetUniformLocation(program, "Model");
 	uniform_mvp = glGetUniformLocation(program, "mvp");
 
     if(attribute_coord == -1 || uniform_mvp == -1)
@@ -156,7 +158,7 @@ void specialKeyPressed(int key, int x, int y)
 void updateMVP()
 {
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
 		cameraPos, // The position which the camera has in world space
@@ -185,8 +187,14 @@ void display()
 	// Enable generic vertex attribute array to access as defualt by vertex commands
 	glEnableVertexAttribArray(attribute_coord);
 
-	superchunk test;
+	world.render();
 
+	glDisableVertexAttribArray(attribute_coord);
+	glutSwapBuffers(); // Buffer swap used layer for current window
+}
+
+void generate_terrain()
+{
 	// Create a PerlinNoise object with the reference permutation vector
 	PerlinNoise pn;
 
@@ -197,12 +205,12 @@ void display()
 			for(int z = 0; z < (CZ * SCZ); z++)
 			{
                 // Generate noise
-                double i = (double)x / ((double)SCX);
-                double j = (double)y / ((double)SCY);
-                double k = (double)z / ((double)SCZ);
+                double i = (double)x / ((double) CX * SCX);
+                double j = (double)y / ((double) CY * SCY);
+                double k = (double)z / ((double) CZ * SCZ);
                 double n = pn.noise(10 * i, 10 * j, 10 * k);
 
-				std::cout << n << std::endl;
+				//std::cout << n << std::endl;
 
                 // Wood-like structure
                 //n = 20 * pn.noise(i, j, k);
@@ -212,19 +220,16 @@ void display()
                 int b = floor(y * n / 4);
                 int c = floor(z * n);
 
-				test.set(a, b, c, 1);
+				world.set(a, b, c, 1);
 			}
 		}
 	}
 
+	world.render();
+
 	updateMVP();
 	// Specify the value of a uniform variable for the current program object
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
-
-	test.render();
-
-	glDisableVertexAttribArray(attribute_coord);
-	glutSwapBuffers(); // Buffer swap used layer for current window
 }
 
 int main(int argc, char* argv[])
@@ -244,6 +249,7 @@ int main(int argc, char* argv[])
 	}
 
     init_resources();
+	generate_terrain();
 
 	glutDisplayFunc(display); // Set display callback for current window
 	glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
