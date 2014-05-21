@@ -14,11 +14,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "../include/PerlinNoise.hpp"
 
-//#include "../src/perlin.c" // Bad
-#include "../shader/textures.c"
 #include "../include/noise.hpp"
+#include "../shader/textures.c"
 
 #define CX 10
 #define CY 10
@@ -110,9 +108,9 @@ struct chunk
                     vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
                     vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
                     vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                    
 
-                    // View from positive 
+
+                    // View from positive
                     vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
                     vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
                     vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
@@ -137,7 +135,7 @@ struct chunk
                     vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
                     vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
                     vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
-                    
+
                     // View from negative z
                     vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
                     vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
@@ -234,23 +232,23 @@ struct superchunk
     void render()
     {
         for(int x = 0; x < SCX; x++)
-		{
+        {
             for(int y = 0; y < SCY; y++)
-			{
+            {
                 for(int z = 0; z < SCZ; z++)
-				{
+                {
                     if(c[x][y][z])
                     {
                         Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
-						updateMVP();
-						glUniformMatrix4fv(uniform_Model, 1, GL_FALSE, glm::value_ptr(Model));
-						glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+                        updateMVP();
+                        glUniformMatrix4fv(uniform_Model, 1, GL_FALSE, glm::value_ptr(Model));
+                        glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
                     }
-				}
-			}
-		}
+                }
+            }
+        }
     }
 };
 

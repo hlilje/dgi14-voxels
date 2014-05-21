@@ -23,7 +23,7 @@ int init_resources()
 #endif
     "attribute vec4 coord;                       "
     "varying vec4 texcoord;                      "
-	"uniform mat4 Model;                         "
+    "uniform mat4 Model;                         "
     "uniform mat4 mvp;                           "
     "void main(void) {                           "
     "    texcoord = Model * coord;               "
@@ -50,20 +50,20 @@ int init_resources()
     "varying vec4 texcoord;         "
     "uniform sampler2D texture;     "
     "void main(void) {              "
-	"    gl_FragColor = vec4(texcoord.x / 100.0, texcoord.y / 100.0, texcoord.z / 200.0, 1.0);"
+    "    gl_FragColor = vec4(texcoord.x / 100.0, texcoord.y / 100.0, texcoord.z / 200.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
     glCompileShader(fs);
     glGetShaderiv(fs, GL_COMPILE_STATUS, &compile_ok);
 
-	// Get the shader log to print
-	GLint logSize = 0;
+    // Get the shader log to print
+    GLint logSize = 0;
     glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &logSize);
-	GLchar* log = (GLchar*)malloc(logSize);
-	glGetShaderInfoLog(fs, logSize, NULL, log);
-	if(logSize > 1) printf("%s\n", log);
-	free(log);
+    GLchar* log = (GLchar*)malloc(logSize);
+    glGetShaderInfoLog(fs, logSize, NULL, log);
+    if(logSize > 1) printf("%s\n", log);
+    free(log);
 
     if(!compile_ok)
     {
@@ -84,8 +84,8 @@ int init_resources()
     }
 
     attribute_coord = glGetAttribLocation(program, "coord");
-	uniform_Model = glGetUniformLocation(program, "Model");
-	uniform_mvp = glGetUniformLocation(program, "mvp");
+    uniform_Model = glGetUniformLocation(program, "Model");
+    uniform_mvp = glGetUniformLocation(program, "mvp");
 
     if(attribute_coord == -1 || uniform_mvp == -1)
     {
@@ -106,77 +106,77 @@ int init_resources()
 
 void keyPressed (unsigned char key, int x, int y)
 {
-	glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
+    glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
 
-	switch(key)
-	{
-		case 'w':
-			cameraPos += cameraLook;
-			glutPostRedisplay();
-			break;
-		case 's':
-			cameraPos -= cameraLook;
-			glutPostRedisplay();
-			break;
-		case 'a':
-			cameraPos -= sideDir;
-			glutPostRedisplay();
-			break;
-		case 'd':
-			cameraPos += sideDir;
-			glutPostRedisplay();
-			break;
-	}
+    switch(key)
+    {
+        case 'w':
+            cameraPos += cameraLook;
+            glutPostRedisplay();
+            break;
+        case 's':
+            cameraPos -= cameraLook;
+            glutPostRedisplay();
+            break;
+        case 'a':
+            cameraPos -= sideDir;
+            glutPostRedisplay();
+            break;
+        case 'd':
+            cameraPos += sideDir;
+            glutPostRedisplay();
+            break;
+    }
 }
 
 void specialKeyPressed(int key, int x, int y)
 {
-	cameraLook = glm::normalize(cameraLook);
-	glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
-	glm::vec3 scaleVec(0.1, 0.0, 0.1);
+    cameraLook = glm::normalize(cameraLook);
+    glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
+    glm::vec3 scaleVec(0.1, 0.0, 0.1);
 
-	switch(key){
-		case GLUT_KEY_UP:
-			cameraLook.y += 0.1;
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_DOWN:
-			cameraLook.y -= 0.1;
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_LEFT:
-			cameraLook -= sideDir * scaleVec;
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_RIGHT:
-			cameraLook += sideDir * scaleVec;
-			glutPostRedisplay();
-			break;
-	}
+    switch(key){
+        case GLUT_KEY_UP:
+            cameraLook.y += 0.1;
+            glutPostRedisplay();
+            break;
+        case GLUT_KEY_DOWN:
+            cameraLook.y -= 0.1;
+            glutPostRedisplay();
+            break;
+        case GLUT_KEY_LEFT:
+            cameraLook -= sideDir * scaleVec;
+            glutPostRedisplay();
+            break;
+        case GLUT_KEY_RIGHT:
+            cameraLook += sideDir * scaleVec;
+            glutPostRedisplay();
+            break;
+    }
 }
 
 void updateMVP()
 {
-	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
-	// Camera matrix
-	glm::mat4 View       = glm::lookAt(
-		cameraPos, // The position which the camera has in world space
-		cameraPos + cameraLook, // and where it looks
-		glm::vec3(0,1,0) // Head is up
-	);
-	mvp        = Projection * View * Model;
+    // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+    glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+    // Camera matrix
+    glm::mat4 View       = glm::lookAt(
+        cameraPos, // The position which the camera has in world space
+        cameraPos + cameraLook, // and where it looks
+        glm::vec3(0,1,0) // Head is up
+    );
+    mvp        = Projection * View * Model;
 }
 
 void display()
 {
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
 
-	glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
-	glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
+    glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
+    glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
 
-	glUseProgram(program); // Set current renering state
+    glUseProgram(program); // Set current renering state
 
     glUniform1i(uniform_texture, 0); // Specify location
     // Set texture interpolation mode
@@ -184,45 +184,43 @@ void display()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	// Enable generic vertex attribute array to access as defualt by vertex commands
-	glEnableVertexAttribArray(attribute_coord);
+    // Enable generic vertex attribute array to access as defualt by vertex commands
+    glEnableVertexAttribArray(attribute_coord);
 
-	world.render();
+    world.render();
 
-	glDisableVertexAttribArray(attribute_coord);
-	glutSwapBuffers(); // Buffer swap used layer for current window
+    glDisableVertexAttribArray(attribute_coord);
+    glutSwapBuffers(); // Buffer swap used layer for current window
 }
 
 void generate_terrain()
 {
-	// Create a PerlinNoise object with the reference permutation vector
-	PerlinNoise pn;
-	srand(time(NULL));
-	int seed = rand();
-	double noise;
+    srand(time(NULL));
+    int seed = rand();
+    double noise;
 
-	for(int x = 0; x < (CX * SCX); x++)
-	{
-		for(int z = 0; z < (CZ * SCZ); z++)
-		{
-			//The noise function expects coordinates from 0.1 to 1.0
-			noise = noise2d_perlin(double(x) / double(CX * SCX), double(z) / double(CZ * SCZ), seed, 10, 0.60);
-			
-			for(int y = 0; y < (CY * SCY); y++)
-			{
-				if(y < CY * SCY * (0.2 + noise / 10))
-				{
-					world.set(x, y, z, 1);
-				}
-			}
-		}
-	}
+    for(int x = 0; x < (CX * SCX); x++)
+    {
+        for(int z = 0; z < (CZ * SCZ); z++)
+        {
+            //The noise function expects coordinates from 0.1 to 1.0
+            noise = noise2d_perlin(double(x) / double(CX * SCX), double(z) / double(CZ * SCZ), seed, 10, 0.60);
 
-	world.render();
+            for(int y = 0; y < (CY * SCY); y++)
+            {
+                if(y < CY * SCY * (0.2 + noise / 10))
+                {
+                    world.set(x, y, z, 1);
+                }
+            }
+        }
+    }
 
-	updateMVP();
-	// Specify the value of a uniform variable for the current program object
-	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+    world.render();
+
+    updateMVP();
+    // Specify the value of a uniform variable for the current program object
+    glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
 
 int main(int argc, char* argv[])
@@ -235,19 +233,19 @@ int main(int argc, char* argv[])
 
     GLenum glew_status = glewInit();
 
-	if (glew_status != GLEW_OK)
-	{
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
-		return 1;
-	}
+    if (glew_status != GLEW_OK)
+    {
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
+        return 1;
+    }
 
     init_resources();
-	generate_terrain();
+    generate_terrain();
 
-	glutDisplayFunc(display); // Set display callback for current window
-	glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
-	glutSpecialFunc(specialKeyPressed); // For func or dir keys
-	glutMainLoop();
+    glutDisplayFunc(display); // Set display callback for current window
+    glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
+    glutSpecialFunc(specialKeyPressed); // For func or dir keys
+    glutMainLoop();
 
     glDeleteProgram(program); // Free resources
     return 0;
