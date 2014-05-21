@@ -1,5 +1,5 @@
 double easeCurve(double t);
- 
+
 // Return value: -1 ... 1
 double noise2d(int x, int y, int seed);
 double noise3d(int x, int y, int z, int seed);
@@ -20,7 +20,6 @@ double noise3d_perlin_abs(double x, double y, double z, int seed,
 		int octaves, double persistence);
 
 // noise.cpp
-
 #define NOISE_MAGIC_X 1619
 #define NOISE_MAGIC_Y 31337
 #define NOISE_MAGIC_Z 52591

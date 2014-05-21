@@ -7,8 +7,8 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 
-set(SOURCES src/main.cpp src/Renderer.cpp src/noise.cpp)
-set(HEADERS include/main.hpp include/Renderer.hpp include/noise.hpp)
+set(SOURCES src/main.cpp src/noise.cpp)
+set(HEADERS include/main.hpp include/noise.hpp)
 set(SHADERS shader/textures.c)
 
 if(CMAKE_COMPILER_IS_GNUCXX)

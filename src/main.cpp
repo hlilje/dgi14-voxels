@@ -7,7 +7,8 @@ int init_resources()
     // Do an initial support check for textures
     int vertex_texture_units;
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &vertex_texture_units);
-    if(!vertex_texture_units) {
+    if(!vertex_texture_units)
+    {
         fprintf(stderr, "Your graphics cards does not support texture lookups in the vertex shader\n");
         return 0;
     }
@@ -106,7 +107,7 @@ int init_resources()
 
 void keyPressed (unsigned char key, int x, int y)
 {
-    glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
+    glm::vec3 sideDir = glm::normalize(glm::cross(cameraLook, glm::vec3(0, 1, 0)));
 
     switch(key)
     {
@@ -132,10 +133,11 @@ void keyPressed (unsigned char key, int x, int y)
 void specialKeyPressed(int key, int x, int y)
 {
     cameraLook = glm::normalize(cameraLook);
-    glm::vec3 sideDir = glm::normalize( glm::cross(cameraLook, glm::vec3(0, 1, 0)) );
+    glm::vec3 sideDir = glm::normalize(glm::cross(cameraLook, glm::vec3(0, 1, 0)));
     glm::vec3 scaleVec(0.1, 0.0, 0.1);
 
-    switch(key){
+    switch(key)
+    {
         case GLUT_KEY_UP:
             cameraLook.y += 0.1;
             glutPostRedisplay();
@@ -160,12 +162,12 @@ void updateMVP()
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     // Camera matrix
-    glm::mat4 View       = glm::lookAt(
+    glm::mat4 View = glm::lookAt(
         cameraPos, // The position which the camera has in world space
         cameraPos + cameraLook, // and where it looks
         glm::vec3(0,1,0) // Head is up
     );
-    mvp        = Projection * View * Model;
+    mvp = Projection * View * Model;
 }
 
 void display()
@@ -187,7 +189,7 @@ void display()
     // Enable generic vertex attribute array to access as defualt by vertex commands
     glEnableVertexAttribArray(attribute_coord);
 
-    world.render();
+    world.render(); // Render the superchunk
 
     glDisableVertexAttribArray(attribute_coord);
     glutSwapBuffers(); // Buffer swap used layer for current window
@@ -203,7 +205,7 @@ void generate_terrain()
     {
         for(int z = 0; z < (CZ * SCZ); z++)
         {
-            //The noise function expects coordinates from 0.1 to 1.0
+            // The noise function expects coordinates from 0.1 to 1.0
             noise = noise2d_perlin(double(x) / double(CX * SCX), double(z) / double(CZ * SCZ), seed, 10, 0.60);
 
             for(int y = 0; y < (CY * SCY); y++)
@@ -233,7 +235,7 @@ int main(int argc, char* argv[])
 
     GLenum glew_status = glewInit();
 
-    if (glew_status != GLEW_OK)
+    if(glew_status != GLEW_OK)
     {
         fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
         return 1;
