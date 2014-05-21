@@ -186,11 +186,9 @@ void display()
 	glEnableVertexAttribArray(attribute_coord);
 
 	superchunk test;
-	srand(time(NULL));
 
 	// Create a PerlinNoise object with the reference permutation vector
-	int seed = rand();
-	PerlinNoise pn(seed);
+	PerlinNoise pn;
 
 	for(int x = 0; x < (CX * SCX); x++)
 	{
@@ -204,22 +202,21 @@ void display()
                 double k = (double)z / ((double)SCZ);
                 double n = pn.noise(10 * i, 10 * j, 10 * k);
 
+				std::cout << n << std::endl;
+
                 // Wood-like structure
                 //n = 20 * pn.noise(i, j, k);
                 //n = n - floor(n);
 
                 int a = floor(x * n);
-                int b = floor(y * n/4);
+                int b = floor(y * n / 4);
                 int c = floor(z * n);
-				if((rand() % 100) == 0)
-				{
-					test.set(x, y, z, 1);
-				}
+
+				test.set(a, b, c, 1);
 			}
 		}
 	}
 
-	glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(1000, 1000, 1000));
 	updateMVP();
 	// Specify the value of a uniform variable for the current program object
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));

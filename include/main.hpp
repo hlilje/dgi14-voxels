@@ -19,13 +19,13 @@
 //#include "../src/perlin.c" // Bad
 #include "../shader/textures.c"
 
-#define CX 10
-#define CY 10
-#define CZ 10
+#define CX 16
+#define CY 16
+#define CZ 16
 
-#define SCX 3
-#define SCY 3
-#define SCZ 3
+#define SCX 2
+#define SCY 2
+#define SCZ 2
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"
@@ -279,9 +279,9 @@ struct superchunk
 				{
                     if(c[x][y][z])
                     {
-                        //glm::mat4 Model = glm::translate(glm::mat4(1.0f), glm::vec3(rand() % 1000, rand() % 1000, rand() % 1000));
-						//updateMVP();
-						//glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+                        Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
+						updateMVP();
+						glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
                     }
