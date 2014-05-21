@@ -59,6 +59,14 @@ int init_resources()
     glCompileShader(fs);
     glGetShaderiv(fs, GL_COMPILE_STATUS, &compile_ok);
 
+	// Get the shader log to print
+	GLint logSize = 0;
+    glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &logSize);
+	GLchar* log = (GLchar*)malloc(logSize);
+	glGetShaderInfoLog(fs, logSize, NULL, log);
+	if(logSize > 1) printf("%s\n", log);
+	free(log);
+
     if(!compile_ok)
     {
         fprintf(stderr, "Error in fragment shader\n");
@@ -87,11 +95,12 @@ int init_resources()
     }
 
     // Upload the texture with the datapoints
-    glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glActiveTexture(GL_TEXTURE0); // Select active texture unit
+    glGenTextures(1, &texture); // Generate texture names
+    glBindTexture(GL_TEXTURE_2D, texture); // Bind name texture to texturing target
+    // Specify 2D texture image
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
 
     return 1;
 }
