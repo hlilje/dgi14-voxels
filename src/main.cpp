@@ -50,7 +50,7 @@ int init_resources()
     "varying vec4 texcoord;         "
     "uniform sampler2D texture;     "
     "void main(void) {              "
-	"    gl_FragColor = vec4(texcoord.x / 100.0, 150.0, texcoord.z / 100.0, 1.0);"
+	"    gl_FragColor = vec4(texcoord.x / 100.0, texcoord.y / 100.0, texcoord.z / 200.0, 1.0);"
     "}";
 
     glShaderSource(fs, 1, &fs_source, NULL);
@@ -197,30 +197,23 @@ void generate_terrain()
 {
 	// Create a PerlinNoise object with the reference permutation vector
 	PerlinNoise pn;
+	srand(time(NULL));
+	int seed = rand();
+	double noise;
 
 	for(int x = 0; x < (CX * SCX); x++)
 	{
-		for(int y = 0; y < (CY * SCY); y++)
+		for(int z = 0; z < (CZ * SCZ); z++)
 		{
-			for(int z = 0; z < (CZ * SCZ); z++)
+			//The noise function expects coordinates from 0.1 to 1.0
+			noise = noise2d_perlin(double(x) / double(CX * SCX), double(z) / double(CZ * SCZ), seed, 10, 0.60);
+			
+			for(int y = 0; y < (CY * SCY); y++)
 			{
-                // Generate noise
-                double i = (double)x / ((double) CX * SCX);
-                double j = (double)y / ((double) CY * SCY);
-                double k = (double)z / ((double) CZ * SCZ);
-                double n = pn.noise(10 * i, 10 * j, 10 * k);
-
-				//std::cout << n << std::endl;
-
-                // Wood-like structure
-                //n = 20 * pn.noise(i, j, k);
-                //n = n - floor(n);
-
-                int a = floor(x * n);
-                int b = floor(y * n / 4);
-                int c = floor(z * n);
-
-				world.set(a, b, c, 1);
+				if(y < CY * SCY * (0.2 + noise / 10))
+				{
+					world.set(x, y, z, 1);
+				}
 			}
 		}
 	}

@@ -1,201 +1,195 @@
-/* coherent noise function over 1, 2 or 3 dimensions */
-/* (copyright Ken Perlin) */
+double easeCurve(double t);
+ 
+// Return value: -1 ... 1
+double noise2d(int x, int y, int seed);
+double noise3d(int x, int y, int z, int seed);
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
+double noise2d_gradient(double x, double y, int seed);
+double noise3d_gradient(double x, double y, double z, int seed);
 
-#define B 0x100
-#define BM 0xff
+double noise2d_perlin(double x, double y, int seed,
+		int octaves, double persistence);
 
-#define N 0x1000
-#define NP 12   /* 2^N */
-#define NM 0xfff
+double noise2d_perlin_abs(double x, double y, int seed,
+		int octaves, double persistence);
 
-//static p[B + B + 2];
-static int p[B + B + 2];
-static float g3[B + B + 2][3];
-static float g2[B + B + 2][2];
-static float g1[B + B + 2];
-static float start = 1;
+double noise3d_perlin(double x, double y, double z, int seed,
+		int octaves, double persistence);
 
-static void init(void);
+double noise3d_perlin_abs(double x, double y, double z, int seed,
+		int octaves, double persistence);
 
-#define s_curve(t) ( t * t * (3. - 2. * t) )
+// noise.cpp
 
-#define lerp(t, a, b) ( a + t * (b - a) )
+#define NOISE_MAGIC_X 1619
+#define NOISE_MAGIC_Y 31337
+#define NOISE_MAGIC_Z 52591
+#define NOISE_MAGIC_SEED 1013
 
-#define setup(i,b0,b1,r0,r1)\
-    t = vec[i] + N;\
-    b0 = ((int)t) & BM;\
-    b1 = (b0+1) & BM;\
-    r0 = t - (int)t;\
-    r1 = r0 - 1.;
+double cos_lookup[16] = {
+	1.0,0.9238,0.7071,0.3826,0,-0.3826,-0.7071,-0.9238,
+	1.0,-0.9238,-0.7071,-0.3826,0,0.3826,0.7071,0.9238
+};
 
-double noise1(double arg)
-{
-    int bx0, bx1;
-    float rx0, rx1, sx, t, u, v, vec[1];
-
-    vec[0] = arg;
-    if (start) {
-        start = 0;
-        init();
-    }
-
-    setup(0, bx0,bx1, rx0,rx1);
-
-    sx = s_curve(rx0);
-
-    u = rx0 * g1[ p[ bx0 ] ];
-    v = rx1 * g1[ p[ bx1 ] ];
-
-    return lerp(sx, u, v);
+double dotProduct(double vx, double vy, double wx, double wy){
+    return vx*wx+vy*wy;
+}
+ 
+double easeCurve(double t){
+    return 6*pow(t,5)-15*pow(t,4)+10*pow(t,3);
+}
+ 
+double linearInterpolation(double x0, double x1, double t){
+    return x0+(x1-x0)*t;
+}
+ 
+double biLinearInterpolation(double x0y0, double x1y0, double x0y1, double x1y1, double x, double y){
+    double tx = easeCurve(x);
+    double ty = easeCurve(y);
+	/*double tx = x;
+	double ty = y;*/
+    double u = linearInterpolation(x0y0,x1y0,tx);
+    double v = linearInterpolation(x0y1,x1y1,tx);
+    return linearInterpolation(u,v,ty);
 }
 
-float noise2(float vec[2])
+double triLinearInterpolation(
+		double v000, double v100, double v010, double v110,
+		double v001, double v101, double v011, double v111,
+		double x, double y, double z)
 {
-    int bx0, bx1, by0, by1, b00, b10, b01, b11;
-    float rx0, rx1, ry0, ry1, *q, sx, sy, a, b, t, u, v;
-    int i, j;
-    //register i, j;
-
-    if (start) {
-        start = 0;
-        init();
-    }
-
-    setup(0, bx0,bx1, rx0,rx1);
-    setup(1, by0,by1, ry0,ry1);
-
-    i = p[ bx0 ];
-    j = p[ bx1 ];
-
-    b00 = p[ i + by0 ];
-    b10 = p[ j + by0 ];
-    b01 = p[ i + by1 ];
-    b11 = p[ j + by1 ];
-
-    sx = s_curve(rx0);
-    sy = s_curve(ry0);
-
-#define at2(rx,ry) ( rx * q[0] + ry * q[1] )
-
-    q = g2[ b00 ] ; u = at2(rx0,ry0);
-    q = g2[ b10 ] ; v = at2(rx1,ry0);
-    a = lerp(sx, u, v);
-
-    q = g2[ b01 ] ; u = at2(rx0,ry1);
-    q = g2[ b11 ] ; v = at2(rx1,ry1);
-    b = lerp(sx, u, v);
-
-    return lerp(sy, a, b);
+    /*double tx = easeCurve(x);
+    double ty = easeCurve(y);
+    double tz = easeCurve(z);*/
+    double tx = x;
+    double ty = y;
+    double tz = z;
+	return(
+		v000*(1-tx)*(1-ty)*(1-tz) +
+		v100*tx*(1-ty)*(1-tz) +
+		v010*(1-tx)*ty*(1-tz) +
+		v110*tx*ty*(1-tz) +
+		v001*(1-tx)*(1-ty)*tz +
+		v101*tx*(1-ty)*tz +
+		v011*(1-tx)*ty*tz +
+		v111*tx*ty*tz
+	);
 }
 
-float noise3(float vec[3])
+double noise2d(int x, int y, int seed)
 {
-    int bx0, bx1, by0, by1, bz0, bz1, b00, b10, b01, b11;
-    float rx0, rx1, ry0, ry1, rz0, rz1, *q, sy, sz, a, b, c, d, t, u, v;
-    int i, j;
-    //register i, j;
-
-    if (start) {
-        start = 0;
-        init();
-    }
-
-    setup(0, bx0,bx1, rx0,rx1);
-    setup(1, by0,by1, ry0,ry1);
-    setup(2, bz0,bz1, rz0,rz1);
-
-    i = p[ bx0 ];
-    j = p[ bx1 ];
-
-    b00 = p[ i + by0 ];
-    b10 = p[ j + by0 ];
-    b01 = p[ i + by1 ];
-    b11 = p[ j + by1 ];
-
-    t  = s_curve(rx0);
-    sy = s_curve(ry0);
-    sz = s_curve(rz0);
-
-#define at3(rx,ry,rz) ( rx * q[0] + ry * q[1] + rz * q[2] )
-
-    q = g3[ b00 + bz0 ] ; u = at3(rx0,ry0,rz0);
-    q = g3[ b10 + bz0 ] ; v = at3(rx1,ry0,rz0);
-    a = lerp(t, u, v);
-
-    q = g3[ b01 + bz0 ] ; u = at3(rx0,ry1,rz0);
-    q = g3[ b11 + bz0 ] ; v = at3(rx1,ry1,rz0);
-    b = lerp(t, u, v);
-
-    c = lerp(sy, a, b);
-
-    q = g3[ b00 + bz1 ] ; u = at3(rx0,ry0,rz1);
-    q = g3[ b10 + bz1 ] ; v = at3(rx1,ry0,rz1);
-    a = lerp(t, u, v);
-
-    q = g3[ b01 + bz1 ] ; u = at3(rx0,ry1,rz1);
-    q = g3[ b11 + bz1 ] ; v = at3(rx1,ry1,rz1);
-    b = lerp(t, u, v);
-
-    d = lerp(sy, a, b);
-
-    return lerp(sz, c, d);
+	int n = (NOISE_MAGIC_X * x + NOISE_MAGIC_Y * y
+			+ NOISE_MAGIC_SEED * seed) & 0x7fffffff;
+	n = (n>>13)^n;
+	n = (n * (n*n*60493+19990303) + 1376312589) & 0x7fffffff;
+	return 1.0 - (double)n/1073741824;
 }
 
-static void normalize2(float v[2])
+double noise3d(int x, int y, int z, int seed)
 {
-    float s;
-
-    s = sqrt(v[0] * v[0] + v[1] * v[1]);
-    v[0] = v[0] / s;
-    v[1] = v[1] / s;
+	int n = (NOISE_MAGIC_X * x + NOISE_MAGIC_Y * y + NOISE_MAGIC_Z * z
+			+ NOISE_MAGIC_SEED * seed) & 0x7fffffff;
+	n = (n>>13)^n;
+	n = (n * (n*n*60493+19990303) + 1376312589) & 0x7fffffff;
+	return 1.0 - (double)n/1073741824;
 }
 
-static void normalize3(float v[3])
+double noise2d_gradient(double x, double y, int seed)
 {
-    float s;
-
-    s = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    v[0] = v[0] / s;
-    v[1] = v[1] / s;
-    v[2] = v[2] / s;
+	// Calculate the integer coordinates
+	int x0 = (x > 0.0 ? (int)x : (int)x - 1);
+	int y0 = (y > 0.0 ? (int)y : (int)y - 1);
+	// Calculate the remaining part of the coordinates
+	double xl = x - (double)x0;
+	double yl = y - (double)y0;
+	// Get values for corners of cube
+	double v00 = noise2d(x0, y0, seed);
+	double v10 = noise2d(x0+1, y0, seed);
+	double v01 = noise2d(x0, y0+1, seed);
+	double v11 = noise2d(x0+1, y0+1, seed);
+	// Interpolate
+	return biLinearInterpolation(v00,v10,v01,v11,xl,yl);
 }
 
-static void init(void)
+double noise3d_gradient(double x, double y, double z, int seed)
 {
-    int i, j, k;
-	srand (time(NULL)); //Modified code
+	// Calculate the integer coordinates
+	int x0 = (x > 0.0 ? (int)x : (int)x - 1);
+	int y0 = (y > 0.0 ? (int)y : (int)y - 1);
+	int z0 = (z > 0.0 ? (int)z : (int)z - 1);
+	// Calculate the remaining part of the coordinates
+	double xl = x - (double)x0;
+	double yl = y - (double)y0;
+	double zl = z - (double)z0;
+	// Get values for corners of cube
+	double v000 = noise3d(x0, y0, z0, seed);
+	double v100 = noise3d(x0+1, y0, z0, seed);
+	double v010 = noise3d(x0, y0+1, z0, seed);
+	double v110 = noise3d(x0+1, y0+1, z0, seed);
+	double v001 = noise3d(x0, y0, z0+1, seed);
+	double v101 = noise3d(x0+1, y0, z0+1, seed);
+	double v011 = noise3d(x0, y0+1, z0+1, seed);
+	double v111 = noise3d(x0+1, y0+1, z0+1, seed);
+	// Interpolate
+	return triLinearInterpolation(v000,v100,v010,v110,v001,v101,v011,v111,xl,yl,zl);
+}
 
-    for (i = 0 ; i < B ; i++) {
-        p[i] = i;
+double noise2d_perlin(double x, double y, int seed,
+		int octaves, double persistence)
+{
+	double a = 0;
+	double f = 1.0;
+	double g = 1.0;
+	for(int i=0; i<octaves; i++)
+	{
+		a += g * noise2d_gradient(x*f, y*f, seed+i);
+		f *= 2.0;
+		g *= persistence;
+	}
+	return a;
+}
 
-        g1[i] = (float)((rand() % (B + B)) - B) / B;
+double noise2d_perlin_abs(double x, double y, int seed,
+		int octaves, double persistence)
+{
+	double a = 0;
+	double f = 1.0;
+	double g = 1.0;
+	for(int i=0; i<octaves; i++)
+	{
+		a += g * fabs(noise2d_gradient(x*f, y*f, seed+i));
+		f *= 2.0;
+		g *= persistence;
+	}
+	return a;
+}
 
-        for (j = 0 ; j < 2 ; j++)
-            g2[i][j] = (float)((rand() % (B + B)) - B) / B;
-        normalize2(g2[i]);
+double noise3d_perlin(double x, double y, double z, int seed,
+		int octaves, double persistence)
+{
+	double a = 0;
+	double f = 1.0;
+	double g = 1.0;
+	for(int i=0; i<octaves; i++)
+	{
+		a += g * noise3d_gradient(x*f, y*f, z*f, seed+i);
+		f *= 2.0;
+		g *= persistence;
+	}
+	return a;
+}
 
-        for (j = 0 ; j < 3 ; j++)
-            g3[i][j] = (float)((rand() % (B + B)) - B) / B;
-        normalize3(g3[i]);
-    }
-
-    while (--i) {
-        k = p[i];
-        p[i] = p[j = rand() % B];
-        p[j] = k;
-    }
-
-    for (i = 0 ; i < B + 2 ; i++) {
-        p[B + i] = p[i];
-        g1[B + i] = g1[i];
-        for (j = 0 ; j < 2 ; j++)
-            g2[B + i][j] = g2[i][j];
-        for (j = 0 ; j < 3 ; j++)
-            g3[B + i][j] = g3[i][j];
-    }
+double noise3d_perlin_abs(double x, double y, double z, int seed,
+		int octaves, double persistence)
+{
+	double a = 0;
+	double f = 1.0;
+	double g = 1.0;
+	for(int i=0; i<octaves; i++)
+	{
+		a += g * fabs(noise3d_gradient(x*f, y*f, z*f, seed+i));
+		f *= 2.0;
+		g *= persistence;
+	}
+	return a;
 }

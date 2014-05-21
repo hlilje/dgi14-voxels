@@ -18,6 +18,7 @@
 
 //#include "../src/perlin.c" // Bad
 #include "../shader/textures.c"
+#include "../include/noise.hpp"
 
 #define CX 10
 #define CY 10
