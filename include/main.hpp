@@ -2,8 +2,11 @@
 //#pragma (lib, "glew32.lib");
 
 #include <iostream>
+#include <fstream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string>
 #include <cstring>
 #include <math.h>
 #include <time.h>
@@ -16,7 +19,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../include/noise.hpp"
-#include "../shader/textures.c"
 
 #define CX 16
 #define CY 16
@@ -39,14 +41,14 @@ GLint uniform_Model;
 GLuint texture;
 GLint uniform_texture;
 
-glm::vec3 cameraPos(100, 50, 100);
+glm::vec3 cameraPos(200, 100, 200);
 glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
 glm::mat4 mvp;
 
 // Model matrix : an identity matrix (model will be at the origin)
 glm::mat4 Model = glm::mat4(1.0f);  // Changes for each model
 
-void updateMVP();
+void update_mvp();
 
 struct chunk
 {
@@ -91,12 +93,10 @@ struct chunk
         {
             for(int y = 0; y < CY; y++)
             {
-                bool visible = false;
                 for(int z = 0; z < CZ; z++)
                 {
                     if(!blk[x][y][z]) // Empty block?
                     {
-                        visible = false;
                         continue;
                     }
 
@@ -194,10 +194,6 @@ struct chunk
         glVertexAttribPointer(attribute_coord, 4, GL_BYTE, GL_FALSE, 0, 0);
         glDrawArrays(GL_TRIANGLES, 0, elements); // Render primitives from array data
     }
-
-    bool isBlocked(int x1, int y1, int z1, int x2, int y2, int z2)
-    {
-    }
 };
 
 struct superchunk
@@ -260,7 +256,7 @@ struct superchunk
                     if(c[x][y][z])
 					{
                         Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
-                        updateMVP();
+                        update_mvp();
 
 						// Is this chunk on the screen?
 						glm::vec4 center = mvp * glm::vec4(CX / 2, CY / 2, CZ / 2, 1);
@@ -289,3 +285,39 @@ struct superchunk
 };
 
 superchunk world; // The container for all the world's voxels
+
+//Takes a file path as a parameter and returns a string
+char * file_to_string(const char *path)
+{
+	FILE *fd;
+	long len,
+		 r;
+	char *str;
+ 
+	if (!(fd = fopen(path, "r")))
+	{
+		fprintf(stderr, "Can't open file '%s' for reading\n", path);
+		return NULL;
+	}
+ 
+	fseek(fd, 0, SEEK_END);
+	len = ftell(fd);
+ 
+	fseek(fd, 0, SEEK_SET);
+	
+	str = (char *) malloc(len * sizeof(char));
+
+	if (!(str))
+	{
+		fprintf(stderr, "Can't malloc space for '%s'\n", path);
+		return NULL;
+	}
+ 
+	r = fread(str, sizeof(char), len, fd);
+ 
+	str[r - 1] = '\0'; /* Shader sources have to term with null */
+ 
+	fclose(fd);
+ 
+	return str;
+}

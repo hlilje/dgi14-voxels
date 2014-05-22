@@ -2,6 +2,29 @@
 
 using namespace std;
 
+// Reads a string from file
+std::string read_file(const char *filePath)
+{
+    std::string content;
+    std::ifstream fileStream(filePath, std::ios::in);
+
+    if(!fileStream.is_open())
+    {
+        std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+        return "";
+    }
+
+    std::string line = "";
+    while(!fileStream.eof())
+    {
+        std::getline(fileStream, line);
+        content.append(line + "\n");
+    }
+
+    fileStream.close();
+    return content;
+}
+
 int init_resources()
 {
     // Do an initial support check for textures
@@ -16,24 +39,20 @@ int init_resources()
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
 
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const char *vs_source =
-#ifdef GL_ES_VERSION_2_0
-    "#version 100\n"  // OpenGL ES 2.0
-#else
-    "#version 120\n"  // OpenGL 2.1
-#endif
-    "attribute vec4 coord;                       "
-    "varying vec4 texcoord;                      "
-    "uniform mat4 Model;                         "
-    "uniform mat4 mvp;                           "
-    "void main(void) {                           "
-    "    texcoord = Model * coord;               "
-    "    gl_Position = mvp * vec4(coord.xyz, 1); "
-    "}";
 
-    glShaderSource(vs, 1, &vs_source, NULL);
+    const GLchar * vstr = file_to_string("../shader/shader.v.glsl");
+
+    glShaderSource(vs, 1, &vstr, NULL);
     glCompileShader(vs);
     glGetShaderiv(vs, GL_COMPILE_STATUS, &compile_ok); // Get shader info
+
+    // Get the vertex shader log to print
+    GLint logSize = 0;
+    glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &logSize);
+    GLchar* log = (GLchar*)malloc(logSize);
+    glGetShaderInfoLog(vs, logSize, NULL, log);
+    if(logSize > 1) printf("%s\n", log);
+    free(log);
 
     if(!compile_ok)
     {
@@ -42,26 +61,15 @@ int init_resources()
     }
 
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *fs_source =
-#ifdef GL_ES_VERSION_2_0
-    "#version 100\n"  // OpenGL ES 2.0
-#else
-    "#version 120\n"  // OpenGL 2.1
-#endif
-    "varying vec4 texcoord;         "
-    "uniform sampler2D texture;     "
-    "void main(void) {              "
-    "    gl_FragColor = vec4(texcoord.x / 100.0, texcoord.y / 100.0, texcoord.z / 200.0, 1.0);"
-    "}";
+	const GLchar * fstr = file_to_string("../shader/shader.f.glsl");
 
-    glShaderSource(fs, 1, &fs_source, NULL);
+    glShaderSource(fs, 1, &fstr, NULL);
     glCompileShader(fs);
     glGetShaderiv(fs, GL_COMPILE_STATUS, &compile_ok);
 
-    // Get the shader log to print
-    GLint logSize = 0;
+    // Print the fragment shader log
     glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &logSize);
-    GLchar* log = (GLchar*)malloc(logSize);
+    log = (GLchar*)malloc(logSize);
     glGetShaderInfoLog(fs, logSize, NULL, log);
     if(logSize > 1) printf("%s\n", log);
     free(log);
@@ -94,13 +102,13 @@ int init_resources()
         return 0;
     }
 
-    // Upload the texture with the datapoints
-    glActiveTexture(GL_TEXTURE0); // Select active texture unit
-    glGenTextures(1, &texture); // Generate texture names
-    glBindTexture(GL_TEXTURE_2D, texture); // Bind name texture to texturing target
-    // Specify 2D texture image
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
-    glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
+    //// Upload the texture with the datapoints
+    //glActiveTexture(GL_TEXTURE0); // Select active texture unit
+    //glGenTextures(1, &texture); // Generate texture names
+    //glBindTexture(GL_TEXTURE_2D, texture); // Bind name texture to texturing target
+    //// Specify 2D texture image
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
+    //glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
 
     return 1;
 }
@@ -199,10 +207,10 @@ void motion(int x, int y)
 	}
 }
 
-void updateMVP()
+void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+    glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
     // Camera matrix
     glm::mat4 View = glm::lookAt(
         cameraPos, // The position which the camera has in world space
@@ -262,10 +270,12 @@ void generate_terrain()
 
     world.render();
 
-    updateMVP();
+    update_mvp();
     // Specify the value of a uniform variable for the current program object
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
+
+
 
 int main(int argc, char* argv[])
 {
