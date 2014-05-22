@@ -39,7 +39,9 @@ int init_resources()
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
 
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const char *vs_source = read_file("shader/shader.v.glsl").c_str();
+    // Save to variable to guarantee that it exist
+    string vs_string = read_file("shader/shader.v.glsl");
+    const char *vs_source = vs_string.c_str();
 
     glShaderSource(vs, 1, &vs_source, NULL);
     glCompileShader(vs);
@@ -60,7 +62,9 @@ int init_resources()
     }
 
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *fs_source = read_file("shader/shader.f.glsl").c_str();
+    // Save to variable to guarantee that it exist
+    string fs_string = read_file("shader/shader.f.glsl");
+    const char *fs_source = fs_string.c_str();
 
     glShaderSource(fs, 1, &fs_source, NULL);
     glCompileShader(fs);
