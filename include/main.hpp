@@ -18,13 +18,13 @@
 #include "../include/noise.hpp"
 #include "../shader/textures.c"
 
-#define CX 10
-#define CY 10
-#define CZ 10
+#define CX 16
+#define CY 16
+#define CZ 16
 
-#define SCX 10
-#define SCY 10
-#define SCZ 10
+#define SCX 20
+#define SCY 20
+#define SCZ 20
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"

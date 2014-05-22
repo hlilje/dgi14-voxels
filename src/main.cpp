@@ -157,6 +157,37 @@ void specialKeyPressed(int key, int x, int y)
     }
 }
 
+void motion(int x, int y) 
+{
+	glm::vec3 sideDir = glm::normalize(glm::cross(cameraLook, glm::vec3(0, 1, 0)));
+	cameraLook = glm::normalize(cameraLook);
+
+	static bool wrap = false;
+	float mouseSensitivity = 1.0 / 200.0; //How many units the camera moves per pixel of mouse movement
+ 
+	if(!wrap)
+	{
+		int ww = glutGet(GLUT_WINDOW_WIDTH);
+	    int wh = glutGet(GLUT_WINDOW_HEIGHT);
+ 
+		int dx = x - ww / 2;
+		int dy = y - wh / 2;
+ 
+		// Do something with dx and dy here
+		cameraLook += sideDir * glm::vec3(float(dx) * mouseSensitivity, 0, float(dx) * mouseSensitivity);
+		cameraLook.y -= float(dy) * mouseSensitivity;
+		glutPostRedisplay();
+ 
+		// move mouse pointer back to the center of the window
+		wrap = true;
+		glutWarpPointer(ww / 2, wh / 2);
+	}
+	else 
+	{
+	    wrap = false;
+	}
+}
+
 void updateMVP()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -210,7 +241,7 @@ void generate_terrain()
 
             for(int y = 0; y < (CY * SCY); y++)
             {
-                if(y < CY * SCY * (0.2 + noise / 10))
+                if(y < CY * SCY * (0.15 + noise / 10))
                 {
                     world.set(x, y, z, 1);
                 }
@@ -247,6 +278,10 @@ int main(int argc, char* argv[])
     glutDisplayFunc(display); // Set display callback for current window
     glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
     glutSpecialFunc(specialKeyPressed); // For func or dir keys
+	glutMotionFunc(motion);
+	glutPassiveMotionFunc(motion);
+	glutSetCursor(GLUT_CURSOR_NONE);
+
     glutMainLoop();
 
     glDeleteProgram(program); // Free resources
