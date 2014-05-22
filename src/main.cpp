@@ -113,21 +113,31 @@ void keyPressed (unsigned char key, int x, int y)
     {
         case 'w':
             cameraPos += cameraLook;
-            glutPostRedisplay();
             break;
+
         case 's':
             cameraPos -= cameraLook;
-            glutPostRedisplay();
             break;
+
         case 'a':
             cameraPos -= sideDir;
-            glutPostRedisplay();
             break;
+
         case 'd':
             cameraPos += sideDir;
-            glutPostRedisplay();
             break;
+
+		case 32: //Space bar
+			cameraPos.y += 0.5;
+			break;
+
+		case 27: //Escape key
+			glDeleteProgram(program);
+			exit (0);
+			break;
     }
+
+	glutPostRedisplay();
 }
 
 void specialKeyPressed(int key, int x, int y)
@@ -140,21 +150,22 @@ void specialKeyPressed(int key, int x, int y)
     {
         case GLUT_KEY_UP:
             cameraLook.y += 0.1;
-            glutPostRedisplay();
             break;
+
         case GLUT_KEY_DOWN:
             cameraLook.y -= 0.1;
-            glutPostRedisplay();
             break;
+
         case GLUT_KEY_LEFT:
             cameraLook -= sideDir * scaleVec;
-            glutPostRedisplay();
             break;
+
         case GLUT_KEY_RIGHT:
             cameraLook += sideDir * scaleVec;
-            glutPostRedisplay();
             break;
     }
+
+	glutPostRedisplay();
 }
 
 void motion(int x, int y) 
