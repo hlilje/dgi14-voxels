@@ -2,6 +2,7 @@
 //#pragma (lib, "glew32.lib");
 
 #include <iostream>
+#include <fstream>
 #include <stdlib.h>
 #include <stdint.h>
 #include <cstring>
@@ -46,7 +47,7 @@ glm::mat4 mvp;
 // Model matrix : an identity matrix (model will be at the origin)
 glm::mat4 Model = glm::mat4(1.0f);  // Changes for each model
 
-void updateMVP();
+void update_mvp();
 
 struct chunk
 {
@@ -253,7 +254,7 @@ struct superchunk
                     if(c[x][y][z])
                     {
                         Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
-                        updateMVP();
+                        update_mvp();
                         glUniformMatrix4fv(uniform_Model, 1, GL_FALSE, glm::value_ptr(Model));
                         glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader

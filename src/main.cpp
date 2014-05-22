@@ -2,6 +2,29 @@
 
 using namespace std;
 
+// Reads a string from file
+std::string read_file(const char *filePath)
+{
+    std::string content;
+    std::ifstream fileStream(filePath, std::ios::in);
+
+    if(!fileStream.is_open())
+    {
+        std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+        return "";
+    }
+
+    std::string line = "";
+    while(!fileStream.eof())
+    {
+        std::getline(fileStream, line);
+        content.append(line + "\n");
+    }
+
+    fileStream.close();
+    return content;
+}
+
 int init_resources()
 {
     // Do an initial support check for textures
@@ -16,24 +39,19 @@ int init_resources()
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
 
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const char *vs_source =
-#ifdef GL_ES_VERSION_2_0
-    "#version 100\n"  // OpenGL ES 2.0
-#else
-    "#version 120\n"  // OpenGL 2.1
-#endif
-    "attribute vec4 coord;                       "
-    "varying vec4 texcoord;                      "
-    "uniform mat4 Model;                         "
-    "uniform mat4 mvp;                           "
-    "void main(void) {                           "
-    "    texcoord = Model * coord;               "
-    "    gl_Position = mvp * vec4(coord.xyz, 1); "
-    "}";
+    const char *vs_source = read_file("shader/shader.v.glsl").c_str();
 
     glShaderSource(vs, 1, &vs_source, NULL);
     glCompileShader(vs);
     glGetShaderiv(vs, GL_COMPILE_STATUS, &compile_ok); // Get shader info
+
+    // Get the vertex shader log to print
+    GLint logSize = 0;
+    glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &logSize);
+    GLchar* log = (GLchar*)malloc(logSize);
+    glGetShaderInfoLog(vs, logSize, NULL, log);
+    if(logSize > 1) printf("%s\n", log);
+    free(log);
 
     if(!compile_ok)
     {
@@ -42,26 +60,15 @@ int init_resources()
     }
 
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *fs_source =
-#ifdef GL_ES_VERSION_2_0
-    "#version 100\n"  // OpenGL ES 2.0
-#else
-    "#version 120\n"  // OpenGL 2.1
-#endif
-    "varying vec4 texcoord;         "
-    "uniform sampler2D texture;     "
-    "void main(void) {              "
-    "    gl_FragColor = vec4(texcoord.x / 100.0, texcoord.y / 100.0, texcoord.z / 200.0, 1.0);"
-    "}";
+    const char *fs_source = read_file("shader/shader.f.glsl").c_str();
 
     glShaderSource(fs, 1, &fs_source, NULL);
     glCompileShader(fs);
     glGetShaderiv(fs, GL_COMPILE_STATUS, &compile_ok);
 
-    // Get the shader log to print
-    GLint logSize = 0;
+    // Print the fragment shader log
     glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &logSize);
-    GLchar* log = (GLchar*)malloc(logSize);
+    log = (GLchar*)malloc(logSize);
     glGetShaderInfoLog(fs, logSize, NULL, log);
     if(logSize > 1) printf("%s\n", log);
     free(log);
@@ -157,7 +164,7 @@ void specialKeyPressed(int key, int x, int y)
     }
 }
 
-void updateMVP()
+void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
@@ -220,7 +227,7 @@ void generate_terrain()
 
     world.render();
 
-    updateMVP();
+    update_mvp();
     // Specify the value of a uniform variable for the current program object
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
