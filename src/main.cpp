@@ -37,7 +37,6 @@ int init_resources()
     }
 
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
-
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 
     const GLchar * vstr = file_to_string("../shader/shader.v.glsl");
@@ -61,6 +60,7 @@ int init_resources()
     }
 
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+
 	const GLchar * fstr = file_to_string("../shader/shader.f.glsl");
 
     glShaderSource(fs, 1, &fstr, NULL);
@@ -136,7 +136,7 @@ void keyPressed (unsigned char key, int x, int y)
             break;
 
 		case 32: //Space bar
-			cameraPos.y += 0.5;
+			cameraPos.y += 1.0;
 			break;
 
 		case 27: //Escape key
