@@ -100,6 +100,16 @@ struct chunk
                         continue;
                     }
 
+                     // Check if we are the same type as the previous block, if so merge the triangles.
+                    if(visible && blk[x][y][z] && blk[x - 1][y][z])
+                    {
+                        vertex[i - 5] = byte4(x,     y,     z + 1, blk[x][y][z]);        
+                        vertex[i - 2] = byte4(x,     y,     z + 1, blk[x][y][z]);        
+                        vertex[i - 1] = byte4(x,     y + 1, z + 1, blk[x][y][z]);        
+                    }
+             
+                    else
+
                     // View from negative x
                     // Only draw if no block in front
                     if(x == 0 || !blk[x - 1][y][z])
@@ -110,6 +120,11 @@ struct chunk
                         vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
                         vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
                         vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
                     }
 
                     // View from positive x
@@ -121,6 +136,11 @@ struct chunk
                         vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y    , z + 1, blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
                     }
 
                     // View from negative y
@@ -132,6 +152,11 @@ struct chunk
                         vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
                         vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
                     }
 
                     // View from positive y
@@ -143,6 +168,11 @@ struct chunk
                         vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
                         vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
                     }
 
                     // View from negative z
@@ -154,6 +184,11 @@ struct chunk
                         vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
                     }
 
                     // View from positive z
@@ -165,6 +200,11 @@ struct chunk
                         vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
                         vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = false;
                     }
                 }
             }
@@ -192,10 +232,6 @@ struct chunk
         // Define array of generic vertex attribute data
         glVertexAttribPointer(attribute_coord, 4, GL_BYTE, GL_FALSE, 0, 0);
         glDrawArrays(GL_TRIANGLES, 0, elements); // Render primitives from array data
-    }
-
-    bool isBlocked(int x1, int y1, int z1, int x2, int y2, int z2)
-    {
     }
 };
 
