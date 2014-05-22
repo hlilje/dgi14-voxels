@@ -185,6 +185,7 @@ struct chunk
         if(!elements)
             return;
 
+
         glEnable(GL_CULL_FACE); // Cull polys based on winding in window coord
         glEnable(GL_DEPTH_TEST);
 
@@ -257,9 +258,25 @@ struct superchunk
                 for(int z = 0; z < SCZ; z++)
                 {
                     if(c[x][y][z])
-                    {
+					{
                         Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
                         updateMVP();
+
+						// Is this chunk on the screen?
+						glm::vec4 center = mvp * glm::vec4(CX / 2, CY / 2, CZ / 2, 1);
+						
+						float d = glm::length(center);
+						center.x /= center.w;
+						center.y /= center.w;
+						
+						// If it is behind the camera, don't bother drawing it
+						if(center.z < -CY / 2)
+							continue;
+
+						// If it is outside the screen, don't bother drawing it
+						if(fabsf(center.x) > 1 + fabsf(CY * 2 / center.w) || fabsf(center.y) > 1 + fabsf(CY * 2 / center.w))
+							continue;
+
                         glUniformMatrix4fv(uniform_Model, 1, GL_FALSE, glm::value_ptr(Model));
                         glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
