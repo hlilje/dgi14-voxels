@@ -53,11 +53,11 @@ int init_resources()
     glGetShaderiv(vs, GL_COMPILE_STATUS, &compile_ok); // Get shader info
 
     // Get the vertex shader log to print
-    GLint logSize = 0;
-    glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &logSize);
-    GLchar* log = (GLchar*)malloc(logSize);
-    glGetShaderInfoLog(vs, logSize, NULL, log);
-    if(logSize > 1) printf("%s\n", log);
+    GLint log_size = 0;
+    glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &log_size);
+    GLchar* log = (GLchar*)malloc(log_size);
+    glGetShaderInfoLog(vs, log_size, NULL, log);
+    if(log_size > 1) printf("%s\n", log);
     free(log);
 
     if(!compile_ok)
@@ -81,10 +81,10 @@ int init_resources()
     glGetShaderiv(fs, GL_COMPILE_STATUS, &compile_ok);
 
     // Print the fragment shader log
-    glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &logSize);
-    log = (GLchar*)malloc(logSize);
-    glGetShaderInfoLog(fs, logSize, NULL, log);
-    if(logSize > 1) printf("%s\n", log);
+    glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &log_size);
+    log = (GLchar*)malloc(log_size);
+    glGetShaderInfoLog(fs, log_size, NULL, log);
+    if(log_size > 1) printf("%s\n", log);
     free(log);
 
     if(!compile_ok)
@@ -143,7 +143,7 @@ int init_resources()
 
 void keyPressed (unsigned char key, int x, int y)
 {
-    glm::vec3 sideDir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
+    glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
 
     switch(key)
     {
@@ -156,11 +156,11 @@ void keyPressed (unsigned char key, int x, int y)
             break;
 
         case 'a':
-            camera_pos -= sideDir;
+            camera_pos -= side_dir;
             break;
 
         case 'd':
-            camera_pos += sideDir;
+            camera_pos += side_dir;
             break;
 
         case 32: //Space bar
@@ -179,8 +179,8 @@ void keyPressed (unsigned char key, int x, int y)
 void specialKeyPressed(int key, int x, int y)
 {
     camera_look = glm::normalize(camera_look);
-    glm::vec3 sideDir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
-    glm::vec3 scaleVec(0.1, 0.0, 0.1);
+    glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
+    glm::vec3 scale_vec(0.1, 0.0, 0.1);
 
     switch(key)
     {
@@ -193,11 +193,11 @@ void specialKeyPressed(int key, int x, int y)
             break;
 
         case GLUT_KEY_LEFT:
-            camera_look -= sideDir * scaleVec;
+            camera_look -= side_dir * scale_vec;
             break;
 
         case GLUT_KEY_RIGHT:
-            camera_look += sideDir * scaleVec;
+            camera_look += side_dir * scale_vec;
             break;
     }
 
@@ -206,11 +206,11 @@ void specialKeyPressed(int key, int x, int y)
 
 void motion(int x, int y)
 {
-    glm::vec3 sideDir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
+    glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
     camera_look = glm::normalize(camera_look);
 
     static bool wrap = false;
-    float mouseSensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse movement
+    float mouse_sensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse movement
 
     if(!wrap)
     {
@@ -221,8 +221,8 @@ void motion(int x, int y)
         int dy = y - wh / 2;
 
         // Do something with dx and dy here
-        camera_look += sideDir * glm::vec3(float(dx) * mouseSensitivity, 0, float(dx) * mouseSensitivity);
-        camera_look.y -= float(dy) * mouseSensitivity;
+        camera_look += side_dir * glm::vec3(float(dx) * mouse_sensitivity, 0, float(dx) * mouse_sensitivity);
+        camera_look.y -= float(dy) * mouse_sensitivity;
         glutPostRedisplay();
 
         // Move mouse pointer back to the center of the window

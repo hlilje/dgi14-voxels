@@ -93,14 +93,14 @@ struct chunk
         byte4 vertex[CX * CY * CZ * 6 * 6];
         int i = 0;
 
-		int texture = 0;
+        int texture = 0;
 
         for(int x = 0; x < CX; x++)
-		{
+        {
             for(int z = 0; z < CZ; z++)
             {
-				for(int y = CY - 1; y >= 0; y--)
-				{
+                for(int y = CY - 1; y >= 0; y--)
+                {
                     if(!blk[x][y][z]) // Empty block?
                     {
                         continue;
@@ -110,37 +110,37 @@ struct chunk
                     // Only draw if no block in front
                     if(x == 0 || !blk[x - 1][y][z])
                     {
-						//If there's a block on top, we place the earth texture
-						//Otherwise earth with grass texture
-						if(y == (CY - 1) || !blk[x][y + 1][z])
-						{
-							texture = 2;
-						}
-						else
-						{
-							texture = 4;
-						}
-						
-						vertex[i++] = byte4(x,     y,     z,     texture);
-						vertex[i++] = byte4(x,     y,     z + 1, texture);
-						vertex[i++] = byte4(x,     y + 1, z,     texture);
-						vertex[i++] = byte4(x,     y + 1, z,     texture);
-						vertex[i++] = byte4(x,     y,     z + 1, texture);
-						vertex[i++] = byte4(x,     y + 1, z + 1, texture);
-						
+                        //If there's a block on top, we place the earth texture
+                        //Otherwise earth with grass texture
+                        if(y == (CY - 1) || !blk[x][y + 1][z])
+                        {
+                            texture = 2;
+                        }
+                        else
+                        {
+                            texture = 4;
+                        }
+
+                        vertex[i++] = byte4(x,     y,     z,     texture);
+                        vertex[i++] = byte4(x,     y,     z + 1, texture);
+                        vertex[i++] = byte4(x,     y + 1, z,     texture);
+                        vertex[i++] = byte4(x,     y + 1, z,     texture);
+                        vertex[i++] = byte4(x,     y,     z + 1, texture);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, texture);
+
                     }
 
                     // View from positive x
                     if(x == (CX - 1) || !blk[x + 1][y][z])
                     {
-						if(y == (CY - 1) || !blk[x][y + 1][z])
-						{
-							texture = 2;
-						}
-						else
-						{
-							texture = 4;
-						}
+                        if(y == (CY - 1) || !blk[x][y + 1][z])
+                        {
+                            texture = 2;
+                        }
+                        else
+                        {
+                            texture = 4;
+                        }
 
                         vertex[i++] = byte4(x + 1, y,     z,     texture);
                         vertex[i++] = byte4(x + 1, y + 1, z,     texture);
@@ -175,14 +175,14 @@ struct chunk
                     // View from negative z
                     if(z == 0 || !blk[x][y][z - 1])
                     {
-						if(y == (CY - 1) || !blk[x][y + 1][z])
-						{
-							texture = 2;
-						}
-						else
-						{
-							texture = 4;
-						}
+                        if(y == (CY - 1) || !blk[x][y + 1][z])
+                        {
+                            texture = 2;
+                        }
+                        else
+                        {
+                            texture = 4;
+                        }
 
                         vertex[i++] = byte4(x,     y,     z,     texture);
                         vertex[i++] = byte4(x,     y + 1, z,     texture);
@@ -195,14 +195,14 @@ struct chunk
                     // View from positive z
                     if(z == (CZ - 1) || !blk[x][y][z + 1])
                     {
-						if(y == (CY - 1) || !blk[x][y + 1][z])
-						{
-							texture = 2;
-						}
-						else
-						{
-							texture = 4;
-						}
+                        if(y == (CY - 1) || !blk[x][y + 1][z])
+                        {
+                            texture = 2;
+                        }
+                        else
+                        {
+                            texture = 4;
+                        }
 
                         vertex[i++] = byte4(x,     y,     z + 1, texture);
                         vertex[i++] = byte4(x + 1, y,     z + 1, texture);
@@ -306,7 +306,6 @@ struct superchunk
                         // Is this chunk on the screen?
                         glm::vec4 center = mvp * glm::vec4(CX / 2, CY / 2, CZ / 2, 1);
 
-                        float d = glm::length(center);
                         center.x /= center.w;
                         center.y /= center.w;
 
