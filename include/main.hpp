@@ -29,9 +29,9 @@
 #define CY 16
 #define CZ 16
 
-#define SCX 20
-#define SCY 20
-#define SCZ 20
+#define SCX 25
+#define SCY 25
+#define SCZ 25
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 #define PROGRAM_NAME "Voxel Renderer"
@@ -46,8 +46,8 @@ GLint uniform_model;
 GLuint texture;
 GLint uniform_texture;
 
-glm::vec3 camera_pos(200, 100, 200);
-glm::vec3 camera_look = glm::normalize(glm::vec3(0, 0, 0) - camera_pos);
+glm::vec3 camera_pos(200.0, 100.0, 200.0);
+glm::vec3 camera_look = glm::normalize(glm::vec3(0.0, 0.0, 0.0) - camera_pos);
 glm::mat4 mvp;
 
 // Model matrix : an identity matrix (model will be at the origin)
@@ -94,12 +94,14 @@ struct chunk
         byte4 vertex[CX * CY * CZ * 6 * 6];
         int i = 0;
 
+		int texture = 0;
+
         for(int x = 0; x < CX; x++)
-        {
-            for(int y = 0; y < CY; y++)
+		{
+            for(int z = 0; z < CZ; z++)
             {
-                for(int z = 0; z < CZ; z++)
-                {
+				for(int y = CY - 1; y >= 0; y--)
+				{
                     if(!blk[x][y][z]) // Empty block?
                     {
                         continue;
@@ -109,67 +111,106 @@ struct chunk
                     // Only draw if no block in front
                     if(x == 0 || !blk[x - 1][y][z])
                     {
-                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
+						//If there's a block on top, we place the earth texture
+						//Otherwise earth with grass texture
+						if(y == (CY - 1) || !blk[x][y + 1][z])
+						{
+							texture = 2;
+						}
+						else
+						{
+							texture = 4;
+						}
+						
+						vertex[i++] = byte4(x,     y,     z,     texture);
+						vertex[i++] = byte4(x,     y,     z + 1, texture);
+						vertex[i++] = byte4(x,     y + 1, z,     texture);
+						vertex[i++] = byte4(x,     y + 1, z,     texture);
+						vertex[i++] = byte4(x,     y,     z + 1, texture);
+						vertex[i++] = byte4(x,     y + 1, z + 1, texture);
+						
                     }
 
                     // View from positive x
                     if(x == (CX - 1) || !blk[x + 1][y][z])
                     {
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y    , z + 1, blk[x][y][z]);
+						if(y == (CY - 1) || !blk[x][y + 1][z])
+						{
+							texture = 2;
+						}
+						else
+						{
+							texture = 4;
+						}
+
+                        vertex[i++] = byte4(x + 1, y,     z,     texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     texture);
+                        vertex[i++] = byte4(x + 1, y,     z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y    , z + 1, texture);
                     }
 
                     // View from negative y
                     if(y == 0 || !blk[x][y - 1][z])
                     {
-                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y,     z,     1);
+                        vertex[i++] = byte4(x + 1, y,     z,     1);
+                        vertex[i++] = byte4(x,     y,     z + 1, 1);
+                        vertex[i++] = byte4(x + 1, y,     z,     1);
+                        vertex[i++] = byte4(x + 1, y,     z + 1, 1);
+                        vertex[i++] = byte4(x,     y,     z + 1, 1);
                     }
 
                     // View from positive y
                     if(y == (CY - 1) || !blk[x][y + 1][z])
                     {
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
+                        vertex[i++] = byte4(x,     y + 1, z,     3);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, 3);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     3);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     3);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, 3);
+                        vertex[i++] = byte4(x + 1, y + 1, z + 1, 3);
                     }
 
                     // View from negative z
                     if(z == 0 || !blk[x][y][z - 1])
                     {
-                        vertex[i++] = byte4(x,     y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z,     blk[x][y][z]);
+						if(y == (CY - 1) || !blk[x][y + 1][z])
+						{
+							texture = 2;
+						}
+						else
+						{
+							texture = 4;
+						}
+
+                        vertex[i++] = byte4(x,     y,     z,     texture);
+                        vertex[i++] = byte4(x,     y + 1, z,     texture);
+                        vertex[i++] = byte4(x + 1, y,     z,     texture);
+                        vertex[i++] = byte4(x,     y + 1, z,     texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     texture);
+                        vertex[i++] = byte4(x + 1, y,     z,     texture);
                     }
 
                     // View from positive z
                     if(z == (CZ - 1) || !blk[x][y][z + 1])
                     {
-                        vertex[i++] = byte4(x,     y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, blk[x][y][z]);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, blk[x][y][z]);
+						if(y == (CY - 1) || !blk[x][y + 1][z])
+						{
+							texture = 2;
+						}
+						else
+						{
+							texture = 4;
+						}
+
+                        vertex[i++] = byte4(x,     y,     z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y,     z + 1, texture);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, texture);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y,     z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z + 1, texture);
                     }
                 }
             }
