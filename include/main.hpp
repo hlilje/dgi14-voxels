@@ -37,7 +37,7 @@ typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
 GLuint program;
 GLint attribute_coord;
 GLint uniform_mvp;
-GLint uniform_Model;
+GLint uniform_model;
 GLuint texture;
 GLint uniform_texture;
 
@@ -46,7 +46,7 @@ glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
 glm::mat4 mvp;
 
 // Model matrix : an identity matrix (model will be at the origin)
-glm::mat4 Model = glm::mat4(1.0f);  // Changes for each model
+glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
 
 void update_mvp();
 
@@ -254,8 +254,9 @@ struct superchunk
                 for(int z = 0; z < SCZ; z++)
                 {
                     if(c[x][y][z])
+<<<<<<< HEAD
 					{
-                        Model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
+                        model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
                         update_mvp();
 
 						// Is this chunk on the screen?

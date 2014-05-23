@@ -37,6 +37,8 @@ int init_resources()
     }
 
     GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
+
+    // Create vertex shader
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 
     const GLchar * vstr = file_to_string("../shader/shader.v.glsl");
@@ -59,6 +61,7 @@ int init_resources()
         return 0;
     }
 
+    // Create fragment shader
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
 
 	const GLchar * fstr = file_to_string("../shader/shader.f.glsl");
@@ -93,7 +96,7 @@ int init_resources()
     }
 
     attribute_coord = glGetAttribLocation(program, "coord");
-    uniform_Model = glGetUniformLocation(program, "Model");
+    uniform_model = glGetUniformLocation(program, "model");
     uniform_mvp = glGetUniformLocation(program, "mvp");
 
     if(attribute_coord == -1 || uniform_mvp == -1)
@@ -109,6 +112,22 @@ int init_resources()
     //// Specify 2D texture image
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
     //glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
+
+    glUseProgram(program); // Set current renering state
+
+    glUniform1i(uniform_texture, 0); // Specify location
+    // Set texture interpolation mode
+    // Use GL_NEAREST_MIPMAP_LINEAR to use mipmaps
+    // GL_NEAREST gives the pixel closest to the coordinates
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // Give red borders for debug
+    float border_colour[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_colour);
+
+    // Enable generic vertex attribute array to access as default by vertex commands
+    glEnableVertexAttribArray(attribute_coord);
 
     return 1;
 }
@@ -212,12 +231,12 @@ void update_mvp()
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
     // Camera matrix
-    glm::mat4 View = glm::lookAt(
+    glm::mat4 view = glm::lookAt(
         cameraPos, // The position which the camera has in world space
         cameraPos + cameraLook, // and where it looks
         glm::vec3(0,1,0) // Head is up
     );
-    mvp = Projection * View * Model;
+    mvp = projection * view * model;
 }
 
 void display()
@@ -227,21 +246,12 @@ void display()
 
     glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
     glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
-
-    glUseProgram(program); // Set current renering state
-
-    glUniform1i(uniform_texture, 0); // Specify location
-    // Set texture interpolation mode
-    // Use GL_NEAREST_MIPMAP_LINEAR to use mipmaps
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // Enable generic vertex attribute array to access as defualt by vertex commands
-    glEnableVertexAttribArray(attribute_coord);
+    glEnable(GL_TEXTURE_2D); // Needed for fixed pipeline
+    glEnable(GL_LIGHTING); // Needed for fixed pipeline?
 
     world.render(); // Render the superchunk
 
-    glDisableVertexAttribArray(attribute_coord);
+    //glDisableVertexAttribArray(attribute_coord);
     glutSwapBuffers(); // Buffer swap used layer for current window
 }
 
