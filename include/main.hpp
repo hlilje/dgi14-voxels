@@ -19,6 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../include/noise.hpp"
+#include "../shader/textures.c"
 
 #define CX 16
 #define CY 16
@@ -41,8 +42,8 @@ GLint uniform_model;
 GLuint texture;
 GLint uniform_texture;
 
-glm::vec3 cameraPos(200, 100, 200);
-glm::vec3 cameraLook = glm::normalize(glm::vec3(0, 0, 0) - cameraPos);
+glm::vec3 camera_pos(200, 100, 200);
+glm::vec3 camera_look = glm::normalize(glm::vec3(0, 0, 0) - camera_pos);
 glm::mat4 mvp;
 
 // Model matrix : an identity matrix (model will be at the origin)
@@ -254,27 +255,26 @@ struct superchunk
                 for(int z = 0; z < SCZ; z++)
                 {
                     if(c[x][y][z])
-<<<<<<< HEAD
-					{
+                    {
                         model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CX, y * CY, z * CZ));
                         update_mvp();
 
-						// Is this chunk on the screen?
-						glm::vec4 center = mvp * glm::vec4(CX / 2, CY / 2, CZ / 2, 1);
-						
-						float d = glm::length(center);
-						center.x /= center.w;
-						center.y /= center.w;
-						
-						// If it is behind the camera, don't bother drawing it
-						if(center.z < -CY / 2)
-							continue;
+                        // Is this chunk on the screen?
+                        glm::vec4 center = mvp * glm::vec4(CX / 2, CY / 2, CZ / 2, 1);
 
-						// If it is outside the screen, don't bother drawing it
-						if(fabsf(center.x) > 1 + fabsf(CY * 2 / center.w) || fabsf(center.y) > 1 + fabsf(CY * 2 / center.w))
-							continue;
+                        float d = glm::length(center);
+                        center.x /= center.w;
+                        center.y /= center.w;
 
-                        glUniformMatrix4fv(uniform_Model, 1, GL_FALSE, glm::value_ptr(Model));
+                        // If it is behind the camera, don't bother drawing it
+                        if(center.z < -CY / 2)
+                            continue;
+
+                        // If it is outside the screen, don't bother drawing it
+                        if(fabsf(center.x) > 1 + fabsf(CY * 2 / center.w) || fabsf(center.y) > 1 + fabsf(CY * 2 / center.w))
+                            continue;
+
+                        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model));
                         glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
@@ -286,39 +286,3 @@ struct superchunk
 };
 
 superchunk world; // The container for all the world's voxels
-
-//Takes a file path as a parameter and returns a string
-char * file_to_string(const char *path)
-{
-	FILE *fd;
-	long len,
-		 r;
-	char *str;
- 
-	if (!(fd = fopen(path, "r")))
-	{
-		fprintf(stderr, "Can't open file '%s' for reading\n", path);
-		return NULL;
-	}
- 
-	fseek(fd, 0, SEEK_END);
-	len = ftell(fd);
- 
-	fseek(fd, 0, SEEK_SET);
-	
-	str = (char *) malloc(len * sizeof(char));
-
-	if (!(str))
-	{
-		fprintf(stderr, "Can't malloc space for '%s'\n", path);
-		return NULL;
-	}
- 
-	r = fread(str, sizeof(char), len, fd);
- 
-	str[r - 1] = '\0'; /* Shader sources have to term with null */
- 
-	fclose(fd);
- 
-	return str;
-}

@@ -41,7 +41,8 @@ int init_resources()
     // Create vertex shader
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 
-    const GLchar * vstr = file_to_string("../shader/shader.v.glsl");
+    string vs_string = read_file("shader/shader.v.glsl");
+    const GLchar* vstr = vs_string.c_str();
 
     glShaderSource(vs, 1, &vstr, NULL);
     glCompileShader(vs);
@@ -64,7 +65,8 @@ int init_resources()
     // Create fragment shader
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const GLchar * fstr = file_to_string("../shader/shader.f.glsl");
+    string fs_string = read_file("shader/shader.f.glsl");
+    const GLchar* fstr = fs_string.c_str();
 
     glShaderSource(fs, 1, &fstr, NULL);
     glCompileShader(fs);
@@ -105,13 +107,13 @@ int init_resources()
         return 0;
     }
 
-    //// Upload the texture with the datapoints
-    //glActiveTexture(GL_TEXTURE0); // Select active texture unit
-    //glGenTextures(1, &texture); // Generate texture names
-    //glBindTexture(GL_TEXTURE_2D, texture); // Bind name texture to texturing target
-    //// Specify 2D texture image
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
-    //glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
+    // Upload the texture with the datapoints
+    glActiveTexture(GL_TEXTURE0); // Select active texture unit
+    glGenTextures(1, &texture); // Generate texture names
+    glBindTexture(GL_TEXTURE_2D, texture); // Bind name texture to texturing target
+    // Specify 2D texture image
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
+    glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
 
     glUseProgram(program); // Set current renering state
 
@@ -134,106 +136,106 @@ int init_resources()
 
 void keyPressed (unsigned char key, int x, int y)
 {
-    glm::vec3 sideDir = glm::normalize(glm::cross(cameraLook, glm::vec3(0, 1, 0)));
+    glm::vec3 sideDir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
 
     switch(key)
     {
         case 'w':
-            cameraPos += cameraLook;
+            camera_pos += camera_look;
             break;
 
         case 's':
-            cameraPos -= cameraLook;
+            camera_pos -= camera_look;
             break;
 
         case 'a':
-            cameraPos -= sideDir;
+            camera_pos -= sideDir;
             break;
 
         case 'd':
-            cameraPos += sideDir;
+            camera_pos += sideDir;
             break;
 
-		case 32: //Space bar
-			cameraPos.y += 1.0;
-			break;
+        case 32: //Space bar
+            camera_pos.y += 1.0;
+            break;
 
-		case 27: //Escape key
-			glDeleteProgram(program);
-			exit (0);
-			break;
+        case 27: //Escape key
+            glDeleteProgram(program);
+            exit (0);
+            break;
     }
 
-	glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 void specialKeyPressed(int key, int x, int y)
 {
-    cameraLook = glm::normalize(cameraLook);
-    glm::vec3 sideDir = glm::normalize(glm::cross(cameraLook, glm::vec3(0, 1, 0)));
+    camera_look = glm::normalize(camera_look);
+    glm::vec3 sideDir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
     glm::vec3 scaleVec(0.1, 0.0, 0.1);
 
     switch(key)
     {
         case GLUT_KEY_UP:
-            cameraLook.y += 0.1;
+            camera_look.y += 0.1;
             break;
 
         case GLUT_KEY_DOWN:
-            cameraLook.y -= 0.1;
+            camera_look.y -= 0.1;
             break;
 
         case GLUT_KEY_LEFT:
-            cameraLook -= sideDir * scaleVec;
+            camera_look -= sideDir * scaleVec;
             break;
 
         case GLUT_KEY_RIGHT:
-            cameraLook += sideDir * scaleVec;
+            camera_look += sideDir * scaleVec;
             break;
     }
 
-	glutPostRedisplay();
+    glutPostRedisplay();
 }
 
-void motion(int x, int y) 
+void motion(int x, int y)
 {
-	glm::vec3 sideDir = glm::normalize(glm::cross(cameraLook, glm::vec3(0, 1, 0)));
-	cameraLook = glm::normalize(cameraLook);
+    glm::vec3 sideDir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
+    camera_look = glm::normalize(camera_look);
 
-	static bool wrap = false;
-	float mouseSensitivity = 1.0 / 200.0; //How many units the camera moves per pixel of mouse movement
- 
-	if(!wrap)
-	{
-		int ww = glutGet(GLUT_WINDOW_WIDTH);
-	    int wh = glutGet(GLUT_WINDOW_HEIGHT);
- 
-		int dx = x - ww / 2;
-		int dy = y - wh / 2;
- 
-		// Do something with dx and dy here
-		cameraLook += sideDir * glm::vec3(float(dx) * mouseSensitivity, 0, float(dx) * mouseSensitivity);
-		cameraLook.y -= float(dy) * mouseSensitivity;
-		glutPostRedisplay();
- 
-		// move mouse pointer back to the center of the window
-		wrap = true;
-		glutWarpPointer(ww / 2, wh / 2);
-	}
-	else 
-	{
-	    wrap = false;
-	}
+    static bool wrap = false;
+    float mouseSensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse movement
+
+    if(!wrap)
+    {
+        int ww = glutGet(GLUT_WINDOW_WIDTH);
+        int wh = glutGet(GLUT_WINDOW_HEIGHT);
+
+        int dx = x - ww / 2;
+        int dy = y - wh / 2;
+
+        // Do something with dx and dy here
+        camera_look += sideDir * glm::vec3(float(dx) * mouseSensitivity, 0, float(dx) * mouseSensitivity);
+        camera_look.y -= float(dy) * mouseSensitivity;
+        glutPostRedisplay();
+
+        // Move mouse pointer back to the center of the window
+        wrap = true;
+        glutWarpPointer(ww / 2, wh / 2);
+    }
+    else
+    {
+        wrap = false;
+    }
 }
 
 void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    glm::mat4 Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
+    glm::mat4 projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
     // Camera matrix
     glm::mat4 view = glm::lookAt(
-        cameraPos, // The position which the camera has in world space
-        cameraPos + cameraLook, // and where it looks
+        camera_pos, // The position which the camera has in world space
+        camera_pos + camera_look, // and where it looks
         glm::vec3(0,1,0) // Head is up
     );
     mvp = projection * view * model;
@@ -309,9 +311,9 @@ int main(int argc, char* argv[])
     glutDisplayFunc(display); // Set display callback for current window
     glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
     glutSpecialFunc(specialKeyPressed); // For func or dir keys
-	glutMotionFunc(motion);
-	glutPassiveMotionFunc(motion);
-	glutSetCursor(GLUT_CURSOR_NONE);
+    glutMotionFunc(motion);
+    glutPassiveMotionFunc(motion);
+    glutSetCursor(GLUT_CURSOR_NONE);
 
     glutMainLoop();
 
