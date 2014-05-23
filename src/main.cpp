@@ -106,7 +106,6 @@ int init_resources()
     }
 
     attribute_coord = glGetAttribLocation(program, "coord");
-    uniform_model = glGetUniformLocation(program, "model");
     uniform_mvp = glGetUniformLocation(program, "mvp");
 
     if(attribute_coord == -1 || uniform_mvp == -1)
