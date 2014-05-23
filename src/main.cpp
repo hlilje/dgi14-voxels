@@ -256,7 +256,7 @@ void display()
     glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
     glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
     glEnable(GL_TEXTURE_2D); // Needed for fixed pipeline
-    glEnable(GL_LIGHTING); // Needed for fixed pipeline?
+    glEnable(GL_LIGHTING); // Needed for fixed pipeline
 
     world.render(); // Render the superchunk
 

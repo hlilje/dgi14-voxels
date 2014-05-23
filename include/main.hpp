@@ -46,7 +46,7 @@ GLuint texture;
 GLint uniform_texture;
 
 glm::vec3 camera_pos(200.0, 100.0, 200.0);
-glm::vec3 camera_look = glm::normalize(glm::vec3(0.0, 0.0, 0.0) - camera_pos);
+glm::vec3 camera_look = glm::normalize(glm::vec3(-20.0, -50.0, -20.0));
 glm::mat4 mvp;
 
 // Model matrix : an identity matrix (model will be at the origin)
@@ -95,6 +95,7 @@ struct chunk
 
         int texture = 0;
 
+		//Here we add the vertices for the faces of our voxels to the vertex array
         for(int x = 0; x < CX; x++)
         {
             for(int z = 0; z < CZ; z++)
@@ -111,7 +112,7 @@ struct chunk
                     if(x == 0 || !blk[x - 1][y][z])
                     {
                         //If there's a block on top, we place the earth texture
-                        //Otherwise earth with grass texture
+                        //Otherwise earth with grass side texture
                         if(y == (CY - 1) || !blk[x][y + 1][z])
                         {
                             texture = 2;
@@ -153,23 +154,29 @@ struct chunk
                     // View from negative y
                     if(y == 0 || !blk[x][y - 1][z])
                     {
-                        vertex[i++] = byte4(x,     y,     z,     1);
-                        vertex[i++] = byte4(x + 1, y,     z,     1);
-                        vertex[i++] = byte4(x,     y,     z + 1, 1);
-                        vertex[i++] = byte4(x + 1, y,     z,     1);
-                        vertex[i++] = byte4(x + 1, y,     z + 1, 1);
-                        vertex[i++] = byte4(x,     y,     z + 1, 1);
+						//Earth texture
+						texture = 1;
+
+                        vertex[i++] = byte4(x,     y,     z,     texture);
+                        vertex[i++] = byte4(x + 1, y,     z,     texture);
+                        vertex[i++] = byte4(x,     y,     z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y,     z,     texture);
+                        vertex[i++] = byte4(x + 1, y,     z + 1, texture);
+                        vertex[i++] = byte4(x,     y,     z + 1, texture);
                     }
 
                     // View from positive y
                     if(y == (CY - 1) || !blk[x][y + 1][z])
                     {
-                        vertex[i++] = byte4(x,     y + 1, z,     3);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, 3);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     3);
-                        vertex[i++] = byte4(x + 1, y + 1, z,     3);
-                        vertex[i++] = byte4(x,     y + 1, z + 1, 3);
-                        vertex[i++] = byte4(x + 1, y + 1, z + 1, 3);
+						//Grass texture
+						texture = 3;
+
+                        vertex[i++] = byte4(x,     y + 1, z,     texture);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z,     texture);
+                        vertex[i++] = byte4(x,     y + 1, z + 1, texture);
+                        vertex[i++] = byte4(x + 1, y + 1, z + 1, texture);
                     }
 
                     // View from negative z
@@ -232,6 +239,7 @@ struct chunk
 
 
         glEnable(GL_CULL_FACE); // Cull polys based on winding in window coord
+		glCullFace(GL_BACK);
         glEnable(GL_DEPTH_TEST);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
