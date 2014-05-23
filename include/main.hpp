@@ -42,7 +42,6 @@ typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
 GLuint program;
 GLint attribute_coord;
 GLint uniform_mvp;
-GLint uniform_model;
 GLuint texture;
 GLint uniform_texture;
 
@@ -278,7 +277,6 @@ struct superchunk
                         if(fabsf(center.x) > 1 + fabsf(CY * 2 / center.w) || fabsf(center.y) > 1 + fabsf(CY * 2 / center.w))
                             continue;
 
-                        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model));
                         glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
                         // Calculate the full MVP matrix here and pass it to the vertex shader
                         c[x][y][z]->render();
