@@ -19,7 +19,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../include/noise.hpp"
+#ifdef _MSC_VER
 #include "../shader/textures.c"
+#else
+#include "shader/textures.c"
+#endif
 
 #define CX 16
 #define CY 16

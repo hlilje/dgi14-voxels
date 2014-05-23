@@ -41,7 +41,11 @@ int init_resources()
     // Create vertex shader
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 
+#ifdef _MSC_VER
+    string vs_string = read_file("../shader/shader.v.glsl");
+#else
     string vs_string = read_file("shader/shader.v.glsl");
+#endif
     const GLchar* vstr = vs_string.c_str();
 
     glShaderSource(vs, 1, &vstr, NULL);
@@ -65,7 +69,11 @@ int init_resources()
     // Create fragment shader
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
 
+#ifdef _MSC_VER
+    string fs_string = read_file("../shader/shader.f.glsl");
+#else
     string fs_string = read_file("shader/shader.f.glsl");
+#endif
     const GLchar* fstr = fs_string.c_str();
 
     glShaderSource(fs, 1, &fstr, NULL);
