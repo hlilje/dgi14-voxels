@@ -272,7 +272,7 @@ void generate_terrain()
             {
                 if(y < CY * SCY * (0.15 + noise / 10))
                 {
-                    world.set(x, y, z, 1);
+                    world.set(x, y, z, 3);
                 }
             }
         }

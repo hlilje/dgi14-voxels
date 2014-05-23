@@ -6,6 +6,7 @@ uniform mat4 model;
 uniform mat4 mvp;
 
 void main(void) {
-    texcoord = model * coord;
+    //texcoord = model * coord;
+    texcoord = coord;
     gl_Position = mvp * vec4(coord.xyz, 1);
 }
