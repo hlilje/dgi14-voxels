@@ -47,7 +47,11 @@ GLint uniform_texture;
 
 glm::vec3 camera_pos(200.0, 100.0, 200.0);
 glm::vec3 camera_look = glm::normalize(glm::vec3(-20.0, -50.0, -20.0));
+glm::mat4 projection;
+glm::mat4 view;
 glm::mat4 mvp;
+
+int ww, wh; // Window size
 
 // Model matrix : an identity matrix (model will be at the origin)
 glm::mat4 model = glm::mat4(1.0f);  // Changes for each model

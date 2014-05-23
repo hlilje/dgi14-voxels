@@ -25,6 +25,20 @@ std::string read_file(const char *filePath)
     return content;
 }
 
+// Update window size
+void reshape(int w, int h)
+{
+    ww = w;
+    wh = h;
+    glViewport(0, 0, w, h);
+}
+
+// Gives the distance to the nearest integer of val
+float dti(float val)
+{
+    return fabsf(val - roundf(val));
+}
+
 int init_resources()
 {
     // Do an initial support check for textures
@@ -131,10 +145,6 @@ int init_resources()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    // Give red borders for debug
-    float border_colour[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_colour);
-
     // Enable generic vertex attribute array to access as default by vertex commands
     glEnableVertexAttribArray(attribute_coord);
 
@@ -238,9 +248,9 @@ void motion(int x, int y)
 void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    glm::mat4 projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
+    projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
     // Camera matrix
-    glm::mat4 view = glm::lookAt(
+    view = glm::lookAt(
         camera_pos, // The position which the camera has in world space
         camera_pos + camera_look, // and where it looks
         glm::vec3(0,1,0) // Head is up
@@ -259,6 +269,105 @@ void display()
     glEnable(GL_LIGHTING); // Needed for fixed pipeline
 
     world.render(); // Render the superchunk
+
+    float depth;
+    // Return pixel data from frame buffer
+    glReadPixels(ww / 2, wh / 2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+    glm::vec4 viewport = glm::vec4(0, 0, ww, wh);
+    glm::vec3 wincoord = glm::vec3(ww / 2, wh / 2, depth);
+    glm::vec3 objcoord = glm::unProject(wincoord, view, projection, viewport);
+
+    // Round to nearest integer to get voxel coordinates
+    int x = floorf(objcoord.x);
+    int y = floorf(objcoord.y);
+    int z = floorf(objcoord.z);
+
+    // Coordinates for the new voxel
+    int nx = x;
+    int ny = y;
+    int nz = z;
+
+    // Might select wrong pixel due to rounding errors
+    if(dti(objcoord.x) < dti(objcoord.y))
+    {
+        if(dti(objcoord.x) < dti(objcoord.z))
+        {
+            if(camera_look.x > 0) nx--;
+            else nx++;
+        }
+        else
+        {
+            if(camera_look.z > 0) nz--;
+            else nz++;
+        }
+    }
+    else
+    {
+        if(dti(objcoord.y) < dti(objcoord.z))
+        {
+            if(camera_look.y > 0) ny--;
+            else ny++;
+        }
+        else
+        {
+            if(camera_look.z > 0) nz--;
+            else nz++;
+        }
+    }
+
+    // Render a block around the block that's being looked at
+    //float box[24][4] = {
+        //{bx + 0, by + 0, bz + 0, 14},
+        //{bx + 1, by + 0, bz + 0, 14},
+        //{bx + 0, by + 1, bz + 0, 14},
+        //{bx + 1, by + 1, bz + 0, 14},
+        //{bx + 0, by + 0, bz + 1, 14},
+        //{bx + 1, by + 0, bz + 1, 14},
+        //{bx + 0, by + 1, bz + 1, 14},
+        //{bx + 1, by + 1, bz + 1, 14},
+
+        //{bx + 0, by + 0, bz + 0, 14},
+        //{bx + 0, by + 1, bz + 0, 14},
+        //{bx + 1, by + 0, bz + 0, 14},
+        //{bx + 1, by + 1, bz + 0, 14},
+        //{bx + 0, by + 0, bz + 1, 14},
+        //{bx + 0, by + 1, bz + 1, 14},
+        //{bx + 1, by + 0, bz + 1, 14},
+        //{bx + 1, by + 1, bz + 1, 14},
+
+        //{bx + 0, by + 0, bz + 0, 14},
+        //{bx + 0, by + 0, bz + 1, 14},
+        //{bx + 1, by + 0, bz + 0, 14},
+        //{bx + 1, by + 0, bz + 1, 14},
+        //{bx + 0, by + 1, bz + 0, 14},
+        //{bx + 0, by + 1, bz + 1, 14},
+        //{bx + 1, by + 1, bz + 0, 14},
+        //{bx + 1, by + 1, bz + 1, 14},
+    //};
+
+    //glDisable(GL_POLYGON_OFFSET_FILL);
+    //glDisable(GL_CULL_FACE);
+    //glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+    //glBindBuffer(GL_ARRAY_BUFFER, cursor_vbo);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
+    //glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    //glDrawArrays(GL_LINES, 0, 24);
+
+    // Draw a cross in the center of the screen
+    float cross[4][4] = {
+        {-0.05, 0, 0, 13},
+        {0.05, 0, 0, 13},
+        {0, -0.05, 0, 13},
+        {0, 0.05, 0, 13},
+    };
+ 
+    glDisable(GL_DEPTH_TEST);
+    glm::mat4 one(1);
+    glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(one));
+    glBufferData(GL_ARRAY_BUFFER, sizeof cross, cross, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glDrawArrays(GL_LINES, 0, 4);
 
     //glDisableVertexAttribArray(attribute_coord);
     glutSwapBuffers(); // Buffer swap used layer for current window
@@ -321,6 +430,7 @@ int main(int argc, char* argv[])
     glutMotionFunc(motion);
     glutPassiveMotionFunc(motion);
     glutSetCursor(GLUT_CURSOR_NONE);
+    glutReshapeFunc(reshape); // Set reshape callback for window
 
     glutMainLoop();
 
