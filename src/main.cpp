@@ -259,7 +259,10 @@ void update_mvp()
 
 void display()
 {
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+	GLuint sun_buf;
+	glGenBuffers(1, &sun_buf);
+
+    glClearColor(0.7, 0.85, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
 
     //glPolygonOffset(2, 2); // TODO Why is this used?
@@ -270,6 +273,47 @@ void display()
     glEnable(GL_CULL_FACE); // TODO Does this work?
 
     world.render(); // Render the superchunk
+
+	float sx = 0, sy = 0, sz = 0;
+
+	float sun[24][4] = {
+        {sx + 0, sy + 0, sz + 0, 14},
+        {sx + 1, sy + 0, sz + 0, 14},
+        {sx + 0, sy + 1, sz + 0, 14},
+        {sx + 1, sy + 1, sz + 0, 14},
+        {sx + 0, sy + 0, sz + 1, 14},
+        {sx + 1, sy + 0, sz + 1, 14},
+        {sx + 0, sy + 1, sz + 1, 14},
+        {sx + 1, sy + 1, sz + 1, 14},
+
+        {sx + 0, sy + 0, sz + 0, 14},
+        {sx + 0, sy + 1, sz + 0, 14},
+        {sx + 1, sy + 0, sz + 0, 14},
+        {sx + 1, sy + 1, sz + 0, 14},
+        {sx + 0, sy + 0, sz + 1, 14},
+        {sx + 0, sy + 1, sz + 1, 14},
+        {sx + 1, sy + 0, sz + 1, 14},
+        {sx + 1, sy + 1, sz + 1, 14},
+
+        {sx + 0, sy + 0, sz + 0, 14},
+        {sx + 0, sy + 0, sz + 1, 14},
+        {sx + 1, sy + 0, sz + 0, 14},
+        {sx + 1, sy + 0, sz + 1, 14},
+        {sx + 0, sy + 1, sz + 0, 14},
+        {sx + 0, sy + 1, sz + 1, 14},
+        {sx + 1, sy + 1, sz + 0, 14},
+        {sx + 1, sy + 1, sz + 1, 14},
+    };
+
+	model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+	update_mvp();
+
+    glDisable(GL_CULL_FACE);
+    glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+    glBindBuffer(GL_ARRAY_BUFFER, sun_buf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof * sun, sun, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glDrawArrays(GL_LINES, 0, 24);
 
     float depth;
     // Return pixel data from frame buffer (window coordinates)
@@ -367,10 +411,10 @@ void display()
 
     // Draw a cross in the center of the screen
     float cross[4][4] = {
-        {-0.05, 0, 0, 13},
-        {0.05, 0, 0, 13},
-        {0, -0.05, 0, 13},
-        {0, 0.05, 0, 13},
+        {-0.02, 0, 0, 13},
+        {0.02, 0, 0, 13},
+        {0, -0.025, 0, 13},
+        {0, 0.025, 0, 13},
     };
 
     glDisable(GL_DEPTH_TEST);

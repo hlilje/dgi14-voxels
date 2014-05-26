@@ -25,6 +25,10 @@ void main(void) {
     else if(texcoord.w == 4)
         color = texture2D(texture, vec2((fract(texcoord.x + texcoord.z) + 1) / 16.0, -texcoord.y)) * 0.75;
 
+    //Whatever
+    else
+        color = texture2D(texture, vec2(((fract(texcoord.x) + texcoord.w) / 16.0), texcoord.z));
+
     float z = gl_FragCoord.z / gl_FragCoord.w;
     float fog = clamp(exp(-fogdensity * z * z), 0.2, 1);
  
