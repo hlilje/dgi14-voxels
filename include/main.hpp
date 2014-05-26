@@ -341,3 +341,8 @@ struct superchunk
 };
 
 superchunk world; // The container for all the world's voxels
+
+double round_float(double d)
+{
+  return floor(d + 0.5);
+}

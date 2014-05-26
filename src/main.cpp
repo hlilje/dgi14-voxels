@@ -36,7 +36,7 @@ void reshape(int w, int h)
 // Gives the distance to the nearest integer of val
 float dti(float val)
 {
-    return fabsf(val - roundf(val));
+    return fabsf(val - round_float(val));
 }
 
 void print_log(GLuint shader)
