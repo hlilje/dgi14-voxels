@@ -54,7 +54,8 @@ glm::mat4 view;
 glm::mat4 mvp;
 
 int ww, wh; // Window size
-int nx, ny, nz; // Voxel currently looked at
+int cx, cy, cz; // Voxel currently looked at
+int nx, ny, nz; // Voxel to be created
 
 // Model matrix : an identity matrix (model will be at the origin)
 glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
@@ -90,6 +91,12 @@ struct chunk
     void set(int x, int y, int z, uint8_t type)
     {
         blk[x][y][z] = type;
+        changed = true;
+    }
+
+    void unset(int x, int y, int z)
+    {
+        blk[x][y][z] = 0;
         changed = true;
     }
 
@@ -303,6 +310,20 @@ struct superchunk
             c[cx][cy][cz] = new chunk();
 
         c[cx][cy][cz]->set(x, y, z, type);
+    }
+
+    void unset(int x, int y, int z)
+    {
+        int cx = x / CX;
+        int cy = y / CY;
+        int cz = z / CZ;
+
+        x %= CX;
+        y %= CY;
+        z %= CZ;
+
+        if(c[cx][cy][cz])
+            c[cx][cy][cz]->unset(x, y, z);
     }
 
     void render()

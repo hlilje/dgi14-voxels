@@ -159,12 +159,12 @@ int init_resources()
 void keyPressed (unsigned char key, int x, int y)
 {
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
-	float speed = 1.0;
-	int mod = glutGetModifiers();
-	if (mod == GLUT_ACTIVE_ALT)
-	{
-		speed = 3.0;
-	}
+    float speed = 1.0;
+    int mod = glutGetModifiers();
+    if (mod == GLUT_ACTIVE_ALT)
+    {
+        speed = 3.0;
+    }
 
     switch(key)
     {
@@ -227,15 +227,17 @@ void specialKeyPressed(int key, int x, int y)
 
 void mouseprocess(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON)
-	{
-		std::cout << "left mouse button" << std::endl;
-	}
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        world.set(nx, ny, nz, 1);
+        glutPostRedisplay();
+    }
 
-	if(button == GLUT_RIGHT_BUTTON)
-	{
-		std::cout << "right mouse button" << std::endl;
-	}
+    if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+    {
+        world.unset(cx, cy, cz);
+        glutPostRedisplay();
+    }
 }
 
 void motion(int x, int y)
@@ -244,7 +246,7 @@ void motion(int x, int y)
     camera_look = glm::normalize(camera_look);
 
     static bool wrap = false;
-    float mouse_sensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse 
+    float mouse_sensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse
 
     if(!wrap)
     {
@@ -296,51 +298,51 @@ void display()
 
     world.render(); // Render the superchunk
 
-	float sx = 0, sy = 0, sz = -0;
-	float sun_size = 100;
+    float sx = 0, sy = 0, sz = -0;
+    float sun_size = 100;
 
     float sun[36][4] = {
-		{sx + 0, sy + 0, sz + 0, 13},
+        {sx + 0, sy + 0, sz + 0, 13},
         {sx + 0, sy + 0, sz + sun_size, 13},
         {sx + 0, sy + sun_size, sz + 0, 13},
-		{sx + 0, sy + sun_size, sz + sun_size, 13},
-		{sx + 0, sy + 0, sz + sun_size, 13},
-		{sx + 0, sy + sun_size, sz + 0, 13},
+        {sx + 0, sy + sun_size, sz + sun_size, 13},
+        {sx + 0, sy + 0, sz + sun_size, 13},
+        {sx + 0, sy + sun_size, sz + 0, 13},
 
-		{sx + 0, sy + 0, sz + 0, 13},
+        {sx + 0, sy + 0, sz + 0, 13},
         {sx + 0, sy + 0, sz + sun_size, 13},
         {sx + sun_size, sy + 0, sz + 0, 13},
-		{sx + sun_size, sy + 0, sz + sun_size, 13},
-		{sx + 0, sy + 0, sz + sun_size, 13},
-		{sx + sun_size, sy + 0, sz + 0, 13},
+        {sx + sun_size, sy + 0, sz + sun_size, 13},
+        {sx + 0, sy + 0, sz + sun_size, 13},
+        {sx + sun_size, sy + 0, sz + 0, 13},
 
         {sx + 0, sy + 0, sz + 0, 13},
         {sx + sun_size, sy + 0, sz + 0, 13},
         {sx + 0, sy + sun_size, sz + 0, 13},
-		{sx + sun_size, sy + sun_size, sz + 0, 13},
-		{sx + sun_size, sy + 0, sz + 0, 13},
-		{sx + 0, sy + sun_size, sz + 0, 13},
+        {sx + sun_size, sy + sun_size, sz + 0, 13},
+        {sx + sun_size, sy + 0, sz + 0, 13},
+        {sx + 0, sy + sun_size, sz + 0, 13},
 
-		{sx + sun_size, sy + sun_size, sz + sun_size, 13},
+        {sx + sun_size, sy + sun_size, sz + sun_size, 13},
         {sx + sun_size, sy + sun_size, sz + 0, 13},
         {sx + sun_size, sy + 0, sz + sun_size, 13},
-		{sx + sun_size, sy + 0, sz + 0, 13},
-		{sx + sun_size, sy + sun_size, sz + 0, 13},
+        {sx + sun_size, sy + 0, sz + 0, 13},
+        {sx + sun_size, sy + sun_size, sz + 0, 13},
         {sx + sun_size, sy + 0, sz + sun_size, 13},
 
-		{sx + sun_size, sy + sun_size, sz + sun_size, 13},
+        {sx + sun_size, sy + sun_size, sz + sun_size, 13},
         {sx + sun_size, sy + sun_size, sz + 0, 13},
         {sx + 0, sy + sun_size, sz + sun_size, 13},
-		{sx + 0, sy + sun_size, sz + 0, 13},
-		{sx + sun_size, sy + sun_size, sz + 0, 13},
+        {sx + 0, sy + sun_size, sz + 0, 13},
+        {sx + sun_size, sy + sun_size, sz + 0, 13},
         {sx + 0, sy + sun_size, sz + sun_size, 13},
 
-		{sx + sun_size, sy + sun_size, sz + sun_size, 13},
+        {sx + sun_size, sy + sun_size, sz + sun_size, 13},
         {sx + 0, sy + sun_size, sz + sun_size, 13},
         {sx + sun_size, sy + 0, sz + sun_size, 13},
-		{sx + 0, sy + 0, sz + sun_size, 13},
-		{sx + 0, sy + sun_size, sz + sun_size, 13},
-		{sx + sun_size, sy + 0, sz + sun_size, 13},
+        {sx + 0, sy + 0, sz + sun_size, 13},
+        {sx + 0, sy + sun_size, sz + sun_size, 13},
+        {sx + sun_size, sy + 0, sz + sun_size, 13},
     };
 
     model = glm::translate(glm::mat4(1.0f), glm::vec3(-300, 300, -300));
@@ -368,6 +370,11 @@ void display()
     int x = floorf(objcoord.x);
     int y = floorf(objcoord.y);
     int z = floorf(objcoord.z);
+
+    // Save coordinates for current voxel
+    cx = x;
+    cy = y;
+    cz = z;
 
     // Coordinates for the next voxel
     nx = x;
@@ -459,7 +466,7 @@ void display()
     };
 
     glDisable(GL_DEPTH_TEST);
-	glLineWidth(2.0);
+    glLineWidth(2.0);
     glm::mat4 one(1);
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(one));
     glBufferData(GL_ARRAY_BUFFER, sizeof cross, cross, GL_DYNAMIC_DRAW);
@@ -524,7 +531,7 @@ int main(int argc, char* argv[])
     glutDisplayFunc(display); // Set display callback for current window
     glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
     glutSpecialFunc(specialKeyPressed); // For func or dir keys
-	glutMouseFunc(mouseprocess);
+    glutMouseFunc(mouseprocess);
     glutMotionFunc(motion);
     glutPassiveMotionFunc(motion);
     glutSetCursor(GLUT_CURSOR_NONE);
