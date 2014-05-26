@@ -153,27 +153,33 @@ int init_resources()
 void keyPressed (unsigned char key, int x, int y)
 {
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
+	float speed = 1.0;
+	int mod = glutGetModifiers();
+	if (mod == GLUT_ACTIVE_ALT)
+	{
+		speed = 3.0;
+	}
 
     switch(key)
     {
         case 'w':
-            camera_pos += camera_look;
+            camera_pos += camera_look * speed;
             break;
 
         case 's':
-            camera_pos -= camera_look;
+            camera_pos -= camera_look * speed;
             break;
 
         case 'a':
-            camera_pos -= side_dir;
+            camera_pos -= side_dir * speed;
             break;
 
         case 'd':
-            camera_pos += side_dir;
+            camera_pos += side_dir * speed;
             break;
 
         case 32: //Space bar
-            camera_pos.y += 1.0;
+            camera_pos.y += 1.0 * speed;
             break;
 
         case 27: //Escape key
@@ -436,6 +442,7 @@ void display()
     };
 
     glDisable(GL_DEPTH_TEST);
+	glLineWidth(2.0);
     glm::mat4 one(1);
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(one));
     glBufferData(GL_ARRAY_BUFFER, sizeof cross, cross, GL_DYNAMIC_DRAW);
