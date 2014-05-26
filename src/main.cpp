@@ -3,14 +3,14 @@
 using namespace std;
 
 // Reads a string from file
-std::string read_file(const char *filePath)
+std::string read_file(string filepath)
 {
     std::string content;
-    std::ifstream fileStream(filePath, std::ios::in);
+    std::ifstream fileStream(filepath, std::ios::in);
 
     if(!fileStream.is_open())
     {
-        std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+        std::cerr << "Could not read file " << filepath << ". File does not exist." << std::endl;
         return "";
     }
 
@@ -39,6 +39,51 @@ float dti(float val)
     return fabsf(val - roundf(val));
 }
 
+void print_log(GLuint shader)
+{
+    // Get the shader log to print
+    GLint log_size = 0;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
+    GLchar* log = (GLchar*)malloc(log_size);
+    glGetShaderInfoLog(shader, log_size, NULL, log);
+    if(log_size > 1) printf("%s\n", log);
+    free(log);
+}
+
+// Creates a shader with error handling
+GLint create_shader(string filename, GLenum type)
+{
+    const GLchar* c_filename = filename.c_str();
+#ifdef _MSC_VER
+    string shader_str = read_file("../shader/" + filename);
+#else
+    string shader_str = read_file("shader/" + filename);
+#endif
+    const GLchar* c_str = shader_str.c_str();
+    if(c_str == NULL)
+    {
+        fprintf(stderr, "Error opening %s: ", c_filename); perror("");
+        return 0;
+    }
+
+    GLuint res = glCreateShader(type);
+    glShaderSource(res, 1, &c_str, NULL);
+ 
+    glCompileShader(res);
+    GLint compile_ok = GL_FALSE;
+    glGetShaderiv(res, GL_COMPILE_STATUS, &compile_ok);
+
+    if(compile_ok == GL_FALSE)
+    {
+        fprintf(stderr, "%s:", c_filename);
+        print_log(res);
+        glDeleteShader(res);
+        return 0;
+    }
+
+    return res;
+}
+
 int init_resources()
 {
     // Do an initial support check for textures
@@ -50,62 +95,13 @@ int init_resources()
         return 0;
     }
 
-    GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
+    GLint link_ok = GL_FALSE;
 
     // Create vertex shader
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-
-#ifdef _MSC_VER
-    string vs_string = read_file("../shader/shader.v.glsl");
-#else
-    string vs_string = read_file("shader/shader.v.glsl");
-#endif
-    const GLchar* vstr = vs_string.c_str();
-
-    glShaderSource(vs, 1, &vstr, NULL);
-    glCompileShader(vs);
-    glGetShaderiv(vs, GL_COMPILE_STATUS, &compile_ok); // Get shader info
-
-    // Get the vertex shader log to print
-    GLint log_size = 0;
-    glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &log_size);
-    GLchar* log = (GLchar*)malloc(log_size);
-    glGetShaderInfoLog(vs, log_size, NULL, log);
-    if(log_size > 1) printf("%s\n", log);
-    free(log);
-
-    if(!compile_ok)
-    {
-        fprintf(stderr, "Error in vertex shader\n");
-        return 0;
-    }
+    GLuint vs = create_shader("shader.v.glsl", GL_VERTEX_SHADER);
 
     // Create fragment shader
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-
-#ifdef _MSC_VER
-    string fs_string = read_file("../shader/shader.f.glsl");
-#else
-    string fs_string = read_file("shader/shader.f.glsl");
-#endif
-    const GLchar* fstr = fs_string.c_str();
-
-    glShaderSource(fs, 1, &fstr, NULL);
-    glCompileShader(fs);
-    glGetShaderiv(fs, GL_COMPILE_STATUS, &compile_ok);
-
-    // Print the fragment shader log
-    glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &log_size);
-    log = (GLchar*)malloc(log_size);
-    glGetShaderInfoLog(fs, log_size, NULL, log);
-    if(log_size > 1) printf("%s\n", log);
-    free(log);
-
-    if(!compile_ok)
-    {
-        fprintf(stderr, "Error in fragment shader\n");
-        return 0;
-    }
+    GLuint fs = create_shader("shader.f.glsl", GL_FRAGMENT_SHADER);
 
     program = glCreateProgram(); // Create empty program object
     glAttachShader(program, vs);
@@ -251,6 +247,7 @@ void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
+    //projection = glm::perspective(45.0f, 1.0f*ww/wh, 0.01f, 100.0f);
     // Camera matrix
     view = glm::lookAt(
         camera_pos, // The position which the camera has in world space
@@ -265,10 +262,12 @@ void display()
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
 
+    //glPolygonOffset(2, 2); // TODO Why is this used?
     glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
     glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
     glEnable(GL_TEXTURE_2D); // Needed for fixed pipeline
     glEnable(GL_LIGHTING); // Needed for fixed pipeline
+    glEnable(GL_CULL_FACE); // TODO Does this work?
 
     world.render(); // Render the superchunk
 
