@@ -136,7 +136,7 @@ int init_resources()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
     glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps for selected target
 
-    glUseProgram(program); // Set current renering state
+    glUseProgram(program); // Set current rendering state
 
     glUniform1i(uniform_texture, 0); // Specify location
     // Set texture interpolation mode
@@ -147,6 +147,8 @@ int init_resources()
 
     // Enable generic vertex attribute array to access as default by vertex commands
     glEnableVertexAttribArray(attribute_coord);
+
+    glGenBuffers(1, &cursor_vbo); // Create a VBO for the cursor
 
     return 1;
 }
@@ -271,11 +273,13 @@ void display()
     world.render(); // Render the superchunk
 
     float depth;
-    // Return pixel data from frame buffer
+    // Return pixel data from frame buffer (window coordinates)
     glReadPixels(ww / 2, wh / 2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 
     glm::vec4 viewport = glm::vec4(0, 0, ww, wh);
     glm::vec3 wincoord = glm::vec3(ww / 2, wh / 2, depth);
+    // Hold coordinates of center pixel
+    // Convert window coordinates to object space coordinates
     glm::vec3 objcoord = glm::unProject(wincoord, view, projection, viewport);
 
     // Round to nearest integer to get voxel coordinates
@@ -283,15 +287,18 @@ void display()
     int y = floorf(objcoord.y);
     int z = floorf(objcoord.z);
 
-    // Coordinates for the new voxel
+    // Coordinates for the next voxel
     int nx = x;
     int ny = y;
     int nz = z;
 
     // Might select wrong pixel due to rounding errors
+    // If x closest, must be either of two faces in x dir
     if(dti(objcoord.x) < dti(objcoord.y))
     {
-        if(dti(objcoord.x) < dti(objcoord.z))
+        // If x coord smaller than x coord of camera we are looking at
+        // the face pointing in the pos x dir
+        if(dti(objcoord.x) < dti(objcoord.z)) // Dist to nearest integer
         {
             if(camera_look.x > 0) nx--;
             else nx++;
@@ -316,43 +323,48 @@ void display()
         }
     }
 
-    // Render a block around the block that's being looked at
-    //float box[24][4] = {
-        //{bx + 0, by + 0, bz + 0, 14},
-        //{bx + 1, by + 0, bz + 0, 14},
-        //{bx + 0, by + 1, bz + 0, 14},
-        //{bx + 1, by + 1, bz + 0, 14},
-        //{bx + 0, by + 0, bz + 1, 14},
-        //{bx + 1, by + 0, bz + 1, 14},
-        //{bx + 0, by + 1, bz + 1, 14},
-        //{bx + 1, by + 1, bz + 1, 14},
+    float bx = float(nx);
+    float by = float(ny);
+    float bz = float(nz);
+    cout << "bx, by, bz: " << bx << " " << by << " " << bz << endl;
 
-        //{bx + 0, by + 0, bz + 0, 14},
-        //{bx + 0, by + 1, bz + 0, 14},
-        //{bx + 1, by + 0, bz + 0, 14},
-        //{bx + 1, by + 1, bz + 0, 14},
-        //{bx + 0, by + 0, bz + 1, 14},
-        //{bx + 0, by + 1, bz + 1, 14},
-        //{bx + 1, by + 0, bz + 1, 14},
-        //{bx + 1, by + 1, bz + 1, 14},
+    // Render a box around the block that's being looked at
+    float box[24][4] = {
+        {bx + 0, by + 0, bz + 0, 14},
+        {bx + 1, by + 0, bz + 0, 14},
+        {bx + 0, by + 1, bz + 0, 14},
+        {bx + 1, by + 1, bz + 0, 14},
+        {bx + 0, by + 0, bz + 1, 14},
+        {bx + 1, by + 0, bz + 1, 14},
+        {bx + 0, by + 1, bz + 1, 14},
+        {bx + 1, by + 1, bz + 1, 14},
 
-        //{bx + 0, by + 0, bz + 0, 14},
-        //{bx + 0, by + 0, bz + 1, 14},
-        //{bx + 1, by + 0, bz + 0, 14},
-        //{bx + 1, by + 0, bz + 1, 14},
-        //{bx + 0, by + 1, bz + 0, 14},
-        //{bx + 0, by + 1, bz + 1, 14},
-        //{bx + 1, by + 1, bz + 0, 14},
-        //{bx + 1, by + 1, bz + 1, 14},
-    //};
+        {bx + 0, by + 0, bz + 0, 14},
+        {bx + 0, by + 1, bz + 0, 14},
+        {bx + 1, by + 0, bz + 0, 14},
+        {bx + 1, by + 1, bz + 0, 14},
+        {bx + 0, by + 0, bz + 1, 14},
+        {bx + 0, by + 1, bz + 1, 14},
+        {bx + 1, by + 0, bz + 1, 14},
+        {bx + 1, by + 1, bz + 1, 14},
 
-    //glDisable(GL_POLYGON_OFFSET_FILL);
-    //glDisable(GL_CULL_FACE);
-    //glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
-    //glBindBuffer(GL_ARRAY_BUFFER, cursor_vbo);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
-    //glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    //glDrawArrays(GL_LINES, 0, 24);
+        {bx + 0, by + 0, bz + 0, 14},
+        {bx + 0, by + 0, bz + 1, 14},
+        {bx + 1, by + 0, bz + 0, 14},
+        {bx + 1, by + 0, bz + 1, 14},
+        {bx + 0, by + 1, bz + 0, 14},
+        {bx + 0, by + 1, bz + 1, 14},
+        {bx + 1, by + 1, bz + 0, 14},
+        {bx + 1, by + 1, bz + 1, 14},
+    };
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_CULL_FACE);
+    glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+    glBindBuffer(GL_ARRAY_BUFFER, cursor_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glDrawArrays(GL_LINES, 0, 24);
 
     // Draw a cross in the center of the screen
     float cross[4][4] = {
@@ -361,7 +373,7 @@ void display()
         {0, -0.05, 0, 13},
         {0, 0.05, 0, 13},
     };
- 
+
     glDisable(GL_DEPTH_TEST);
     glm::mat4 one(1);
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(one));
