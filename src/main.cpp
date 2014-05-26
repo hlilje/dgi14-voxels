@@ -219,13 +219,26 @@ void specialKeyPressed(int key, int x, int y)
     glutPostRedisplay();
 }
 
+void mouseprocess(int button, int state, int x, int y)
+{
+	if(button == GLUT_LEFT_BUTTON)
+	{
+		std::cout << "left mouse button" << std::endl;
+	}
+
+	if(button == GLUT_RIGHT_BUTTON)
+	{
+		std::cout << "right mouse button" << std::endl;
+	}
+}
+
 void motion(int x, int y)
 {
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
     camera_look = glm::normalize(camera_look);
 
     static bool wrap = false;
-    float mouse_sensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse movement
+    float mouse_sensitivity = 1.0 / 200.0; // How many units the camera moves per pixel of mouse 
 
     if(!wrap)
     {
@@ -508,6 +521,7 @@ int main(int argc, char* argv[])
     glutDisplayFunc(display); // Set display callback for current window
     glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
     glutSpecialFunc(specialKeyPressed); // For func or dir keys
+	glutMouseFunc(mouseprocess);
     glutMotionFunc(motion);
     glutPassiveMotionFunc(motion);
     glutSetCursor(GLUT_CURSOR_NONE);
