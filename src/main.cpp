@@ -145,6 +145,7 @@ int init_resources()
     glEnableVertexAttribArray(attribute_coord);
 
     glGenBuffers(1, &cursor_vbo); // Create a VBO for the cursor
+	glGenBuffers(1, &sun_vbo); // Create a VBO for the sun
 
     return 1;
 }
@@ -246,7 +247,7 @@ void motion(int x, int y)
 void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 500.0f);
+    projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     //projection = glm::perspective(45.0f, 1.0f*ww/wh, 0.01f, 100.0f);
     // Camera matrix
     view = glm::lookAt(
@@ -259,9 +260,6 @@ void update_mvp()
 
 void display()
 {
-	GLuint sun_buf;
-	glGenBuffers(1, &sun_buf);
-
     glClearColor(0.7, 0.85, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
 
@@ -274,46 +272,63 @@ void display()
 
     world.render(); // Render the superchunk
 
-	float sx = 0, sy = 0, sz = 0;
+	float sx = 0, sy = 0, sz = -0;
 
-	float sun[24][4] = {
-        {sx + 0, sy + 0, sz + 0, 14},
-        {sx + 1, sy + 0, sz + 0, 14},
-        {sx + 0, sy + 1, sz + 0, 14},
-        {sx + 1, sy + 1, sz + 0, 14},
-        {sx + 0, sy + 0, sz + 1, 14},
-        {sx + 1, sy + 0, sz + 1, 14},
-        {sx + 0, sy + 1, sz + 1, 14},
-        {sx + 1, sy + 1, sz + 1, 14},
+	float sun[36][4] = {
 
-        {sx + 0, sy + 0, sz + 0, 14},
-        {sx + 0, sy + 1, sz + 0, 14},
-        {sx + 1, sy + 0, sz + 0, 14},
-        {sx + 1, sy + 1, sz + 0, 14},
-        {sx + 0, sy + 0, sz + 1, 14},
-        {sx + 0, sy + 1, sz + 1, 14},
-        {sx + 1, sy + 0, sz + 1, 14},
-        {sx + 1, sy + 1, sz + 1, 14},
+		{sx + 0, sy + 0, sz + 0, 13},
+        {sx + 0, sy + 0, sz + 100, 13},
+        {sx + 0, sy + 100, sz + 0, 13},
+		{sx + 0, sy + 100, sz + 100, 13},
+		{sx + 0, sy + 0, sz + 100, 13},
+		{sx + 0, sy + 100, sz + 0, 13},
 
-        {sx + 0, sy + 0, sz + 0, 14},
-        {sx + 0, sy + 0, sz + 1, 14},
-        {sx + 1, sy + 0, sz + 0, 14},
-        {sx + 1, sy + 0, sz + 1, 14},
-        {sx + 0, sy + 1, sz + 0, 14},
-        {sx + 0, sy + 1, sz + 1, 14},
-        {sx + 1, sy + 1, sz + 0, 14},
-        {sx + 1, sy + 1, sz + 1, 14},
+		{sx + 0, sy + 0, sz + 0, 13},
+        {sx + 0, sy + 0, sz + 100, 13},
+        {sx + 100, sy + 0, sz + 0, 13},
+		{sx + 100, sy + 0, sz + 100, 13},
+		{sx + 0, sy + 0, sz + 100, 13},
+		{sx + 100, sy + 0, sz + 0, 13},
+
+        {sx + 0, sy + 0, sz + 0, 13},
+        {sx + 100, sy + 0, sz + 0, 13},
+        {sx + 0, sy + 100, sz + 0, 13},
+		{sx + 100, sy + 100, sz + 0, 13},
+		{sx + 100, sy + 0, sz + 0, 13},
+		{sx + 0, sy + 100, sz + 0, 13},
+
+		{sx + 100, sy + 100, sz + 100, 13},
+        {sx + 100, sy + 100, sz + 0, 13},
+        {sx + 100, sy + 0, sz + 100, 13},
+		{sx + 100, sy + 0, sz + 0, 13},
+		{sx + 100, sy + 100, sz + 0, 13},
+        {sx + 100, sy + 0, sz + 100, 13},
+
+		{sx + 100, sy + 100, sz + 100, 13},
+        {sx + 100, sy + 100, sz + 0, 13},
+        {sx + 0, sy + 100, sz + 100, 13},
+		{sx + 0, sy + 100, sz + 0, 13},
+		{sx + 100, sy + 100, sz + 0, 13},
+        {sx + 0, sy + 100, sz + 100, 13},
+
+		{sx + 100, sy + 100, sz + 100, 13},
+        {sx + 0, sy + 100, sz + 100, 13},
+        {sx + 100, sy + 0, sz + 100, 13},
+		{sx + 0, sy + 0, sz + 100, 13},
+		{sx + 0, sy + 100, sz + 100, 13},
+		{sx + 100, sy + 0, sz + 100, 13},
     };
 
-	model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+	model = glm::translate(glm::mat4(1.0f), glm::vec3(-300, 300, -300));
 	update_mvp();
 
+    //glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_CULL_FACE);
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
-    glBindBuffer(GL_ARRAY_BUFFER, sun_buf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof * sun, sun, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, sun_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof sun, sun, GL_DYNAMIC_DRAW);
     glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawArrays(GL_LINES, 0, 24);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     float depth;
     // Return pixel data from frame buffer (window coordinates)
@@ -400,6 +415,9 @@ void display()
         {bx + 1, by + 1, bz + 0, 14},
         {bx + 1, by + 1, bz + 1, 14},
     };
+
+	model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+	update_mvp();
 
     glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_CULL_FACE);

@@ -45,6 +45,7 @@ GLint uniform_mvp;
 GLuint texture;
 GLint uniform_texture;
 GLuint cursor_vbo;
+GLuint sun_vbo;
 
 glm::vec3 camera_pos(200.0, 100.0, 200.0);
 glm::vec3 camera_look = glm::normalize(glm::vec3(-20.0, -50.0, -20.0));
