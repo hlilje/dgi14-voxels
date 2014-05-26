@@ -33,6 +33,12 @@ void reshape(int w, int h)
     glViewport(0, 0, w, h);
 }
 
+// Rounds a float
+float round_float(float d)
+{
+    return floor(d + 0.5);
+}
+
 // Gives the distance to the nearest integer of val
 float dti(float val)
 {
@@ -68,7 +74,7 @@ GLint create_shader(string filename, GLenum type)
 
     GLuint res = glCreateShader(type);
     glShaderSource(res, 1, &c_str, NULL);
- 
+
     glCompileShader(res);
     GLint compile_ok = GL_FALSE;
     glGetShaderiv(res, GL_COMPILE_STATUS, &compile_ok);
@@ -145,7 +151,7 @@ int init_resources()
     glEnableVertexAttribArray(attribute_coord);
 
     glGenBuffers(1, &cursor_vbo); // Create a VBO for the cursor
-	glGenBuffers(1, &sun_vbo); // Create a VBO for the sun
+    glGenBuffers(1, &sun_vbo); // Create a VBO for the sun
 
     return 1;
 }
@@ -293,8 +299,7 @@ void display()
 	float sx = 0, sy = 0, sz = -0;
 	float sun_size = 100;
 
-	float sun[36][4] = {
-
+    float sun[36][4] = {
 		{sx + 0, sy + 0, sz + 0, 13},
         {sx + 0, sy + 0, sz + sun_size, 13},
         {sx + 0, sy + sun_size, sz + 0, 13},
@@ -338,8 +343,8 @@ void display()
 		{sx + sun_size, sy + 0, sz + sun_size, 13},
     };
 
-	model = glm::translate(glm::mat4(1.0f), glm::vec3(-300, 300, -300));
-	update_mvp();
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-300, 300, -300));
+    update_mvp();
 
     //glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_CULL_FACE);
@@ -365,9 +370,9 @@ void display()
     int z = floorf(objcoord.z);
 
     // Coordinates for the next voxel
-    int nx = x;
-    int ny = y;
-    int nz = z;
+    nx = x;
+    ny = y;
+    nz = z;
 
     // Might select wrong pixel due to rounding errors
     // If x closest, must be either of two faces in x dir
@@ -403,7 +408,6 @@ void display()
     float bx = float(nx);
     float by = float(ny);
     float bz = float(nz);
-    cout << "bx, by, bz: " << bx << " " << by << " " << bz << endl;
 
     // Render a box around the block that's being looked at
     float box[24][4] = {
@@ -435,8 +439,8 @@ void display()
         {bx + 1, by + 1, bz + 1, 14},
     };
 
-	model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-	update_mvp();
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+    update_mvp();
 
     glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_CULL_FACE);

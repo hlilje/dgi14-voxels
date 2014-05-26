@@ -54,6 +54,7 @@ glm::mat4 view;
 glm::mat4 mvp;
 
 int ww, wh; // Window size
+int nx, ny, nz; // Voxel currently looked at
 
 // Model matrix : an identity matrix (model will be at the origin)
 glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
@@ -101,7 +102,7 @@ struct chunk
 
         int texture = 0;
 
-		//Here we add the vertices for the faces of our voxels to the vertex array
+        //Here we add the vertices for the faces of our voxels to the vertex array
         for(int x = 0; x < CX; x++)
         {
             for(int z = 0; z < CZ; z++)
@@ -160,8 +161,8 @@ struct chunk
                     // View from negative y
                     if(y == 0 || !blk[x][y - 1][z])
                     {
-						//Earth texture
-						texture = 1;
+                        //Earth texture
+                        texture = 1;
 
                         vertex[i++] = byte4(x,     y,     z,     texture);
                         vertex[i++] = byte4(x + 1, y,     z,     texture);
@@ -174,8 +175,8 @@ struct chunk
                     // View from positive y
                     if(y == (CY - 1) || !blk[x][y + 1][z])
                     {
-						//Grass texture
-						texture = 3;
+                        //Grass texture
+                        texture = 3;
 
                         vertex[i++] = byte4(x,     y + 1, z,     texture);
                         vertex[i++] = byte4(x,     y + 1, z + 1, texture);
@@ -245,7 +246,7 @@ struct chunk
 
 
         glEnable(GL_CULL_FACE); // Cull polys based on winding in window coord
-		glCullFace(GL_BACK);
+        glCullFace(GL_BACK);
         glEnable(GL_DEPTH_TEST);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -342,8 +343,3 @@ struct superchunk
 };
 
 superchunk world; // The container for all the world's voxels
-
-double round_float(double d)
-{
-  return floor(d + 0.5);
-}
