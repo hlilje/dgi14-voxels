@@ -287,7 +287,6 @@ void display()
     glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
     glEnable(GL_TEXTURE_2D); // Needed for fixed pipeline
     glEnable(GL_LIGHTING); // Needed for fixed pipeline
-    glEnable(GL_CULL_FACE); // TODO Does this work?
 
     world.render(); // Render the superchunk
 
