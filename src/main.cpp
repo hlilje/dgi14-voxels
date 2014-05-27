@@ -165,7 +165,7 @@ void free_resources()
 }
 
 // Handles key presses
-void keyPressed(unsigned char key, int x, int y)
+void key_pressed(unsigned char key, int x, int y)
 {
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
     float speed = 1.0;
@@ -206,7 +206,7 @@ void keyPressed(unsigned char key, int x, int y)
 }
 
 // Handles special key presses
-void specialKeyPressed(int key, int x, int y)
+void special_key_pressed(int key, int x, int y)
 {
     camera_look = glm::normalize(camera_look);
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
@@ -247,7 +247,7 @@ bool valid_coords(int x, int y, int z)
 }
 
 // Handle mouse clicks
-void mouseprocess(int button, int state, int x, int y)
+void mouse_process(int button, int state, int x, int y)
 {
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
@@ -560,9 +560,9 @@ int main(int argc, char* argv[])
     generate_terrain();
 
     glutDisplayFunc(display); // Set display callback for current window
-    glutKeyboardFunc(keyPressed); // Set keyboard callback for current window
-    glutSpecialFunc(specialKeyPressed); // For func or dir keys
-    glutMouseFunc(mouseprocess);
+    glutKeyboardFunc(key_pressed); // Set keyboard callback for current window
+    glutSpecialFunc(special_key_pressed); // For func or dir keys
+    glutMouseFunc(mouse_process);
     glutMotionFunc(motion);
     glutPassiveMotionFunc(motion);
     glutSetCursor(GLUT_CURSOR_NONE);
