@@ -39,6 +39,7 @@
 // Use medium precision
 typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
 
+// Global OpenGL variables
 GLuint program;
 GLint attribute_coord;
 GLint uniform_mvp;
@@ -47,21 +48,23 @@ GLint uniform_texture;
 GLuint cursor_vbo;
 GLuint sun_vbo;
 
+// Global matrices and vectors
 glm::vec3 camera_pos(200.0, 100.0, 200.0);
 glm::vec3 camera_look = glm::normalize(glm::vec3(-20.0, -50.0, -20.0));
 glm::mat4 projection;
 glm::mat4 view;
 glm::mat4 mvp;
+// Model matrix : an identity matrix (model will be at the origin)
+glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
 
+// Global integer variables
 int ww, wh; // Window size
 int cx, cy, cz; // Voxel currently looked at
 int nx, ny, nz; // Voxel to be created
 
-// Model matrix : an identity matrix (model will be at the origin)
-glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
-
 void update_mvp();
 
+// Data structure to hold a set of voxels
 struct chunk
 {
     uint8_t blk[CX][CY][CZ];
@@ -263,6 +266,7 @@ struct chunk
     }
 };
 
+// Data structure to hold a set of chunks (makes up the world)
 struct superchunk
 {
     chunk *c[SCX][SCY][SCZ];

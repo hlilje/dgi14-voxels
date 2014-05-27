@@ -45,6 +45,7 @@ float dti(float val)
     return fabsf(val - round_float(val));
 }
 
+// Print the error log for the given shader
 void print_log(GLuint shader)
 {
     // Get the shader log to print
@@ -90,6 +91,7 @@ GLint create_shader(string filename, GLenum type)
     return res;
 }
 
+// Initialised all the resources needed for the program
 int init_resources()
 {
     // Do an initial support check for textures
@@ -156,7 +158,8 @@ int init_resources()
     return 1;
 }
 
-void keyPressed (unsigned char key, int x, int y)
+// Handles key presses
+void keyPressed(unsigned char key, int x, int y)
 {
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
     float speed = 1.0;
@@ -197,6 +200,7 @@ void keyPressed (unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
+// Handles special key presses
 void specialKeyPressed(int key, int x, int y)
 {
     camera_look = glm::normalize(camera_look);
@@ -225,6 +229,7 @@ void specialKeyPressed(int key, int x, int y)
     glutPostRedisplay();
 }
 
+// Handle mouse clicks
 void mouseprocess(int button, int state, int x, int y)
 {
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -240,6 +245,7 @@ void mouseprocess(int button, int state, int x, int y)
     }
 }
 
+// Handle the camera mouse motion
 void motion(int x, int y)
 {
     glm::vec3 side_dir = glm::normalize(glm::cross(camera_look, glm::vec3(0, 1, 0)));
@@ -271,6 +277,7 @@ void motion(int x, int y)
     }
 }
 
+// Updates the model view projection
 void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -285,12 +292,13 @@ void update_mvp()
     mvp = projection * view * model;
 }
 
+// Manages rendering
 void display()
 {
     glClearColor(0.7, 0.85, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
 
-    //glPolygonOffset(2, 2); // TODO Why is this used?
+    //glPolygonOffset(2, 2);
     glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
     glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
     glEnable(GL_TEXTURE_2D); // Needed for fixed pipeline
@@ -507,8 +515,7 @@ void generate_terrain()
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
 
-
-
+// Program entry point
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
