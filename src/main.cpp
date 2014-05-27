@@ -158,6 +158,12 @@ int init_resources()
     return 1;
 }
 
+// Frees the resources allocated by the program
+void free_resources()
+{
+    glDeleteProgram(program); // Free resources
+}
+
 // Handles key presses
 void keyPressed(unsigned char key, int x, int y)
 {
@@ -192,9 +198,8 @@ void keyPressed(unsigned char key, int x, int y)
             break;
 
         case 27: //Escape key
-            glDeleteProgram(program);
-            exit (0);
-            break;
+            glutDestroyWindow(window_id); // Force exit by destroying the window
+            return; // Skip redisplay
     }
 
     glutPostRedisplay();
@@ -229,18 +234,32 @@ void specialKeyPressed(int key, int x, int y)
     glutPostRedisplay();
 }
 
+// Returns true if the given coordinates are valid voxels in the world
+bool valid_coords(int x, int y, int z)
+{
+    if(x < 0 || x > (CX * SCX - 1))
+        return false;
+    if(y < 0 || y > (CY * SCY - 1))
+        return false;
+    if(z < 0 || z > (CZ * SCZ - 1))
+        return false;
+    return true;
+}
+
 // Handle mouse clicks
 void mouseprocess(int button, int state, int x, int y)
 {
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        world.set(nx, ny, nz, 1);
+        if(valid_coords(nx, ny, nx))
+            world.set(nx, ny, nz, 1);
         glutPostRedisplay();
     }
 
     if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
-        world.unset(cx, cy, cz);
+        if(valid_coords(nx, ny, nx))
+            world.unset(cx, cy, cz);
         glutPostRedisplay();
     }
 }
@@ -424,6 +443,10 @@ void display()
     float by = float(ny);
     float bz = float(nz);
 
+    // DEBUG
+    //cout << "nx, ny, nz: " << nx << " " << ny << " " << nz << endl;
+    //cout << "cx, cy, cz: " << cx << " " << cy << " " << cz << endl;
+
     // Render a box around the block that's being looked at
     float box[24][4] = {
         {bx + 0, by + 0, bz + 0, 14},
@@ -522,7 +545,7 @@ int main(int argc, char* argv[])
     // RGB mode, depth buffer, double buffer
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    glutCreateWindow(PROGRAM_NAME); // Create top-level window
+    window_id = glutCreateWindow(PROGRAM_NAME); // Create top-level window
 
     GLenum glew_status = glewInit();
 
@@ -532,6 +555,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    // Setup the world
     init_resources();
     generate_terrain();
 
@@ -544,8 +568,8 @@ int main(int argc, char* argv[])
     glutSetCursor(GLUT_CURSOR_NONE);
     glutReshapeFunc(reshape); // Set reshape callback for window
 
+    atexit(free_resources); // Called on program exit
     glutMainLoop();
 
-    glDeleteProgram(program); // Free resources
     return 0;
 }

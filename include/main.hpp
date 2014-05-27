@@ -25,10 +25,10 @@
 #include "shader/textures.c"
 #endif
 
+// Defined constants
 #define CX 16
 #define CY 16
 #define CZ 16
-
 #define SCX 25
 #define SCY 25
 #define SCZ 25
@@ -40,7 +40,8 @@
 typedef glm::detail::tvec4<GLbyte, glm::mediump> byte4;
 
 // Global OpenGL variables
-GLuint program;
+GLuint program; // The program id
+GLuint window_id; // Holds the id for the render window
 GLint attribute_coord;
 GLint uniform_mvp;
 GLuint texture;
@@ -55,7 +56,7 @@ glm::mat4 projection;
 glm::mat4 view;
 glm::mat4 mvp;
 // Model matrix : an identity matrix (model will be at the origin)
-glm::mat4 model = glm::mat4(1.0f);  // Changes for each model
+glm::mat4 model = glm::mat4(1.0f); // Changes for each model
 
 // Global integer variables
 int ww, wh; // Window size
