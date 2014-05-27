@@ -439,13 +439,19 @@ void display()
         }
     }
 
-    float bx = float(nx);
-    float by = float(ny);
-    float bz = float(nz);
+    // Set to current block
+    float bx = float(cx);
+    float by = float(cy);
+    float bz = float(cz);
 
     // DEBUG
-    //cout << "nx, ny, nz: " << nx << " " << ny << " " << nz << endl;
-    //cout << "cx, cy, cz: " << cx << " " << cy << " " << cz << endl;
+    cout << "camera coords: " << camera_look.x << " " << camera_look.y << " " << camera_look.z << endl;
+    cout << "object coords: " << objcoord.x << " " << objcoord.y << " " << objcoord.z << endl;
+    cout << "current rounded obj coords: " << cx << " " << cy << " " << cz << endl;
+    cout << "next rounded obj coords:    " << nx << " " << ny << " " << nz << endl;
+    cout << endl;
+    cout << floor(-0.0003f) << endl;
+    cout << floor(0.0003f) << endl;
 
     // Render a box around the block that's being looked at
     float box[24][4] = {
@@ -490,10 +496,10 @@ void display()
 
     // Draw a cross in the center of the screen
     float cross[4][4] = {
-        {-0.02, 0, 0, 13},
-        {0.02, 0, 0, 13},
+        {-0.02,  0, 0, 13},
+        {0.02 ,  0, 0, 13},
         {0, -0.025, 0, 13},
-        {0, 0.025, 0, 13},
+        {0, 0.025 , 0, 13},
     };
 
     glDisable(GL_DEPTH_TEST);
