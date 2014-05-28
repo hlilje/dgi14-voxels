@@ -438,10 +438,11 @@ void display()
     float by = float(cy);
     float bz = float(cz);
 
+    // DEBUG
     //cout << "Camera coords: " << camera_look.x << " " << camera_look.y << " " << camera_look.z << endl;
     //cout << "Object coords: " << objcoord.x << " " << objcoord.y << " " << objcoord.z << endl;
     //cout << "Current floored obj coords: " << cx << " " << cy << " " << cz << endl;
-    //cout << "Next flooerd obj coords:    " << nx << " " << ny << " " << nz << endl;
+    //cout << "Next floored obj coords:    " << nx << " " << ny << " " << nz << endl;
     //cout << endl;
 
     // Render a box around the block that's being looked at
