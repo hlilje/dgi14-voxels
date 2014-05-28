@@ -393,20 +393,14 @@ void display()
     // Convert window coordinates to object space coordinates
     glm::vec3 objcoord = glm::unProject(wincoord, view, projection, viewport);
 
-    // Round to nearest integer to get voxel coordinates
-    int x = floorf(objcoord.x);
-    int y = floorf(objcoord.y);
-    int z = floorf(objcoord.z);
+    // Floor to nearest integer to get voxel coordinates and save current
+    cx = objcoord.x; cy = objcoord.y; cz = objcoord.z;
 
-    // Save coordinates for current voxel
-    cx = x;
-    cy = y;
-    cz = z;
+    // Neded for the edges of the world
+    if(cx < 0) cx = 0; if(cy < 0) cy = 0; if(cz < 0) cz = 0;
 
     // Coordinates for the next voxel
-    nx = x;
-    ny = y;
-    nz = z;
+    nx = cx; ny = cy; nz = cz;
 
     // Might select wrong pixel due to rounding errors
     // If x closest, must be either of two faces in x dir
@@ -444,14 +438,11 @@ void display()
     float by = float(cy);
     float bz = float(cz);
 
-    // DEBUG
-    cout << "camera coords: " << camera_look.x << " " << camera_look.y << " " << camera_look.z << endl;
-    cout << "object coords: " << objcoord.x << " " << objcoord.y << " " << objcoord.z << endl;
-    cout << "current rounded obj coords: " << cx << " " << cy << " " << cz << endl;
-    cout << "next rounded obj coords:    " << nx << " " << ny << " " << nz << endl;
-    cout << endl;
-    cout << floor(-0.0003f) << endl;
-    cout << floor(0.0003f) << endl;
+    //cout << "Camera coords: " << camera_look.x << " " << camera_look.y << " " << camera_look.z << endl;
+    //cout << "Object coords: " << objcoord.x << " " << objcoord.y << " " << objcoord.z << endl;
+    //cout << "Current rounded obj coords: " << cx << " " << cy << " " << cz << endl;
+    //cout << "Next rounded obj coords:    " << nx << " " << ny << " " << nz << endl;
+    //cout << endl;
 
     // Render a box around the block that's being looked at
     float box[24][4] = {
@@ -497,9 +488,9 @@ void display()
     // Draw a cross in the center of the screen
     float cross[4][4] = {
         {-0.02,  0, 0, 13},
-        {0.02 ,  0, 0, 13},
+        {+0.02,  0, 0, 13},
         {0, -0.025, 0, 13},
-        {0, 0.025 , 0, 13},
+        {0, +0.025, 0, 13},
     };
 
     glDisable(GL_DEPTH_TEST);
