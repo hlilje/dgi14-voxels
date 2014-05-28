@@ -12,22 +12,20 @@ void main(void) {
     // Get the index of the texture as the w coordinate
     // 1 is earth, 2 is earth with grass on top, 3 is grass
 
-    // Top and bottom textures
-    if(texcoord.w == 1 || texcoord.w == 3)
+    if(texcoord.w == 1 || texcoord.w == 3) {
+        // Top and bottom textures
         color = texture2D(texture, vec2(((fract(texcoord.x) + texcoord.w) / 16.0), texcoord.z));
-
-    // Side textures
-    else if(texcoord.w == 2)
+    } else if(texcoord.w == 2) {
+        // Side textures
         color = texture2D(texture, vec2((fract(texcoord.x + texcoord.z) + 2) / 16.0, -texcoord.y)) * 0.75;
-
-    // Earth side texture
-    else if(texcoord.w == 4)
+    } else if(texcoord.w == 4) {
+        // Earth side texture
         color = texture2D(texture, vec2((fract(texcoord.x + texcoord.z) + 1) / 16.0, -texcoord.y)) * 0.75;
-
-    // Handle the rest
-    else
+    } else {
+        // Handle the rest
         color = texture2D(texture, vec2(((fract(texcoord.x) + texcoord.w) / 16.0), texcoord.z));
         fogdensity = 0.0;
+    }
 
     float z = gl_FragCoord.z / gl_FragCoord.w;
     float fog = clamp(exp(-fogdensity * z * z), 0.2, 1);
