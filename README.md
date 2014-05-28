@@ -8,6 +8,7 @@ similar to a popular mining and crafting simulator.
 The software is based on the [Glescraft](http://en.wikibooks.org/wiki/OpenGL_Programming/Glescraft_1) tutorial.
 
 ### Usage
-The camera is controlled with the mouse and the `W, A, S, D` keys.
+The camera is controlled with `W, A, S, D` and the arrow keys.
+Use the mouse to look around.
 Press `Space` to rise and hold `Alt` to increase the movement speed.
 Remove a block by right-clicking on it, and create a new block with left-click.
