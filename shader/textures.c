@@ -1,10 +1,10 @@
 /* GIMP RGBA C-Source image dump (textures.c) */
 
 static const struct {
-  unsigned int 	 width;
-  unsigned int 	 height;
-  unsigned int 	 bytes_per_pixel; /* 3:RGB, 4:RGBA */ 
-  unsigned char	 pixel_data[256 * 16 * 4 + 1];
+  unsigned int   width;
+  unsigned int   height;
+  unsigned int   bytes_per_pixel; /* 3:RGB, 4:RGBA */
+  unsigned char  pixel_data[256 * 16 * 4 + 1];
 } textures = {
   256, 16, 4,
   "\377\377\377\0\377\377\377\0\377\377\377\0\377\377\377\0\377\377\377\0\377"
@@ -653,4 +653,3 @@ static const struct {
   "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"
   "\377\377\377\0\0\0\377\377\377\377\377\377\377\377\377\377\377\377\377",
 };
-

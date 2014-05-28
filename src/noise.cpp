@@ -7,19 +7,24 @@ double cos_lookup[16] = {
     1.0,-0.9238,-0.7071,-0.3826,0,0.3826,0.7071,0.9238
 };
 
-double dotProduct(double vx, double vy, double wx, double wy){
+double dotProduct(double vx, double vy, double wx, double wy)
+{
     return vx*wx+vy*wy;
 }
 
-double easeCurve(double t){
+double easeCurve(double t)
+{
     return 6*pow(t,5)-15*pow(t,4)+10*pow(t,3);
 }
 
-double linearInterpolation(double x0, double x1, double t){
+double linearInterpolation(double x0, double x1, double t)
+{
     return x0+(x1-x0)*t;
 }
 
-double biLinearInterpolation(double x0y0, double x1y0, double x0y1, double x1y1, double x, double y){
+double biLinearInterpolation(double x0y0, double x1y0, double x0y1, double x1y1,
+        double x, double y)
+{
     double tx = easeCurve(x);
     double ty = easeCurve(y);
     /*double tx = x;

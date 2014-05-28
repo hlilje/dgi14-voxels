@@ -12,3 +12,4 @@ The camera is controlled with `W, A, S, D` and the arrow keys.
 Use the mouse to look around.
 Press `Space` to rise and hold `Alt` to increase the movement speed.
 Remove a block by right-clicking on it, and create a new block with left-click.
+Exit by pressing `Escape`.

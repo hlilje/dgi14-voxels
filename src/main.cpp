@@ -440,8 +440,8 @@ void display()
 
     //cout << "Camera coords: " << camera_look.x << " " << camera_look.y << " " << camera_look.z << endl;
     //cout << "Object coords: " << objcoord.x << " " << objcoord.y << " " << objcoord.z << endl;
-    //cout << "Current rounded obj coords: " << cx << " " << cy << " " << cz << endl;
-    //cout << "Next rounded obj coords:    " << nx << " " << ny << " " << nz << endl;
+    //cout << "Current floored obj coords: " << cx << " " << cy << " " << cz << endl;
+    //cout << "Next flooerd obj coords:    " << nx << " " << ny << " " << nz << endl;
     //cout << endl;
 
     // Render a box around the block that's being looked at
