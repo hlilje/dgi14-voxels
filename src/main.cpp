@@ -61,12 +61,9 @@ void print_log(GLuint shader)
 GLint create_shader(string filename, GLenum type)
 {
     const GLchar* c_filename = filename.c_str();
-#ifdef _MSC_VER
     string shader_str = read_file("../shader/" + filename);
-#else
-    string shader_str = read_file("shader/" + filename);
-#endif
     const GLchar* c_str = shader_str.c_str();
+
     if(c_str == NULL)
     {
         fprintf(stderr, "Error opening %s: ", c_filename); perror("");

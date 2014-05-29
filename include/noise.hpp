@@ -1,3 +1,5 @@
+#pragma once
+
 double easeCurve(double t);
 
 // Return value: -1 ... 1
