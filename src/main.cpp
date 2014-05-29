@@ -301,7 +301,6 @@ void update_mvp()
 {
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
-    //projection = glm::perspective(45.0f, 1.0f*ww/wh, 0.01f, 100.0f);
     // Camera matrix
     view = glm::lookAt(
         camera_pos, // The position which the camera has in world space
@@ -317,7 +316,6 @@ void display()
     glClearColor(0.7, 0.85, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear current buffers
 
-    //glPolygonOffset(2, 2);
     glEnable(GL_DEPTH_TEST); // Do depth comparisons and update buffer
     glEnable(GL_POLYGON_OFFSET_FILL); // Add offset to fragments before depth comparison
     glEnable(GL_TEXTURE_2D); // Needed for fixed pipeline
@@ -375,7 +373,6 @@ void display()
     model = glm::translate(glm::mat4(1.0f), glm::vec3(-300, 300, -300));
     update_mvp();
 
-    //glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_CULL_FACE);
     glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
     glBindBuffer(GL_ARRAY_BUFFER, sun_vbo);
@@ -438,13 +435,6 @@ void display()
     float by = float(cy);
     float bz = float(cz);
 
-    // DEBUG
-    //cout << "Camera coords: " << camera_look.x << " " << camera_look.y << " " << camera_look.z << endl;
-    //cout << "Object coords: " << objcoord.x << " " << objcoord.y << " " << objcoord.z << endl;
-    //cout << "Current floored obj coords: " << cx << " " << cy << " " << cz << endl;
-    //cout << "Next floored obj coords:    " << nx << " " << ny << " " << nz << endl;
-    //cout << endl;
-
     // Render a box around the block that's being looked at
     float box[24][4] = {
         {bx + 0, by + 0, bz + 0, 14},
@@ -502,7 +492,6 @@ void display()
     glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawArrays(GL_LINES, 0, 4);
 
-    //glDisableVertexAttribArray(attribute_coord);
     glutSwapBuffers(); // Buffer swap used layer for current window
 }
 
